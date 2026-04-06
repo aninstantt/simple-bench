@@ -1,0 +1,23 @@
+{
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "oxc.fmt.configPath": "./vite.config.ts",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  },
+
+  "editor.smoothScrolling": true,
+  "editor.cursorBlinking": "expand",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "workbench.list.smoothScrolling": true
+}

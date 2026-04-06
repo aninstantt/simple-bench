@@ -10,6 +10,16 @@ import { defineConfig, type PluginOption } from 'vite-plus'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+// https://github.com/mdx-editor/editor/issues/491
+const prismjsGlobalShim = {
+  name: 'prismjs-global-shim',
+  transform(code: string, id: string) {
+    if (id.includes('prismjs/components/')) {
+      return `var Prism = require('prismjs');\n${code}`
+    }
+  }
+}
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -17,6 +27,7 @@ export default defineConfig({
     }
   },
   plugins: [
+    prismjsGlobalShim,
     react(),
     babel({
       plugins: [

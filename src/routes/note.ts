@@ -1,9 +1,24 @@
 import type { AnyRoute } from '@tanstack/react-router'
 
-import { createRoute } from '@tanstack/react-router'
+import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
+import * as React from 'react'
 
-import { NoteDetailPage } from '../modules/note/detail-page'
+import { WithLoading } from '../components/custom/with-loading'
 import { NotePage } from '../modules/note/page'
+
+const NoteDetailPage = lazyRouteComponent(
+  () => import('../modules/note/detail-page'),
+  'NoteDetailPage'
+)
+
+function PendingRoute() {
+  return React.createElement(WithLoading, {
+    loading: true,
+    children: React.createElement('div', {
+      className: 'min-h-[40vh]'
+    })
+  })
+}
 
 export function registerNoteRoutes(rootRoute: AnyRoute) {
   const noteRoute = createRoute({
@@ -15,7 +30,8 @@ export function registerNoteRoutes(rootRoute: AnyRoute) {
   const noteDetailRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: 'note/$id',
-    component: NoteDetailPage
+    component: NoteDetailPage,
+    pendingComponent: PendingRoute
   })
 
   return [noteRoute, noteDetailRoute] as const

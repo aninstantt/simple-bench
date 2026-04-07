@@ -4,9 +4,22 @@ import { Outlet, useNavigate } from '@tanstack/react-router'
 import { useAtom } from 'jotai/react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Suspense, lazy } from 'react'
 
-import { FireworksBackground } from '@/components/animate-ui/components/backgrounds/fireworks'
-import { GravityStarsBackground } from '@/components/animate-ui/components/backgrounds/gravity-stars'
+const GravityStarsBackground = lazy(() =>
+  import('@/components/animate-ui/components/backgrounds/gravity-stars').then(
+    m => ({
+      default: m.GravityStarsBackground
+    })
+  )
+)
+const FireworksBackground = lazy(() =>
+  import('@/components/animate-ui/components/backgrounds/fireworks').then(
+    m => ({
+      default: m.FireworksBackground
+    })
+  )
+)
 import { FolderLockIcon } from '@/components/animated-icons/aes'
 import { BookTextIcon } from '@/components/animated-icons/book-text'
 import { HomeIcon } from '@/components/animated-icons/home'
@@ -74,15 +87,17 @@ export function RootLayout() {
         style={{ contain: 'layout paint' }}
       >
         <div className="fixed inset-0 -z-10">
-          {backgroundMode === 'gravity' ? (
-            <GravityStarsBackground className="h-full w-full text-zinc-900/25 dark:text-white/30" />
-          ) : backgroundMode === 'fireworks' ? (
-            <FireworksBackground
-              className="h-full w-full opacity-60"
-              population={0.6}
-              canvasProps={{ className: 'opacity-80' }}
-            />
-          ) : null}
+          <Suspense fallback={null}>
+            {backgroundMode === 'gravity' ? (
+              <GravityStarsBackground className="h-full w-full text-zinc-900/25 dark:text-white/30" />
+            ) : backgroundMode === 'fireworks' ? (
+              <FireworksBackground
+                className="h-full w-full opacity-60"
+                population={0.6}
+                canvasProps={{ className: 'opacity-80' }}
+              />
+            ) : null}
+          </Suspense>
         </div>
         <Outlet />
       </div>

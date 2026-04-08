@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-rc.0",
+    "@dnd-kit/react": "^0.3.2",
     "@fontsource-variable/geist": "^5.2.8",
     "@mdxeditor/editor": "^3.53.1",
     "@reactuses/core": "^6.3.1",

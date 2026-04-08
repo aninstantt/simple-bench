@@ -4,12 +4,12 @@ const STORAGE_KEY_THEME = 'user-config:theme'
 const STORAGE_KEY_BACKGROUND = 'user-config:background'
 const STORAGE_KEY_DOCK_VISIBLE = 'user-config:dock-visible'
 
-export const themeAtom = atomWithStorage<UserConfig.Theme>(
+export const themeAtom = atomWithStorage<State.UserConfig.Theme>(
   STORAGE_KEY_THEME,
   'light'
 )
 
-export const backgroundAtom = atomWithStorage<UserConfig.BackgroundMode>(
+export const backgroundAtom = atomWithStorage<State.UserConfig.BackgroundMode>(
   STORAGE_KEY_BACKGROUND,
   'none'
 )

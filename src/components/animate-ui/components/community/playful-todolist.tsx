@@ -1,6 +1,8 @@
 'use client'
 
-import { Pencil, Trash2 } from 'lucide-react'
+import { DragDropProvider, type DragDropEventHandlers } from '@dnd-kit/react'
+import { useSortable } from '@dnd-kit/react/sortable'
+import { GripVertical, Pencil, Trash2 } from 'lucide-react'
 import { motion, type Transition } from 'motion/react'
 
 import {
@@ -24,6 +26,7 @@ type PlayfulTodolistProps = {
   defaultValue?: PlayfulTodoItem[]
   onChange?: (next: PlayfulTodoItem[]) => void
   onEdit?: (id: string) => void
+  showButtons?: boolean
   className?: string
 }
 
@@ -45,20 +48,40 @@ const getPathTransition = (isChecked: boolean): Transition => ({
 })
 
 type PlayfulTodoRowProps = {
+  index: number
   item: PlayfulTodoItem
   onToggle: (id: string, checked: boolean) => void
   onDelete: (id: string) => void
   onEdit?: (id: string) => void
+  showButtons?: boolean
 }
 
 function PlayfulTodoRow({
+  index,
   item,
   onToggle,
   onDelete,
-  onEdit
+  onEdit,
+  showButtons = true
 }: PlayfulTodoRowProps) {
+  const { ref, sourceRef, targetRef, handleRef, isDragging } = useSortable({
+    id: item.id,
+    index,
+    group: 'playful-todo-list'
+  })
+
   return (
-    <div className="flex items-center gap-3 py-3">
+    <div
+      ref={node => {
+        ref(node)
+        sourceRef(node)
+        targetRef(node)
+      }}
+      className={cn(
+        'relative flex items-center gap-3 py-3',
+        isDragging ? 'cursor-grabbing' : undefined
+      )}
+    >
       <Checkbox
         checked={item.checked}
         onCheckedChange={val => onToggle(item.id, val === true)}
@@ -97,38 +120,54 @@ function PlayfulTodoRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
-        {onEdit ? (
-          <button
-            type="button"
-            aria-label="Edit todo"
-            onClick={() => onEdit(item.id)}
-            className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-          >
-            <Pencil className="size-4" />
-          </button>
-        ) : null}
-
-        <CopyButton
-          text={item.label}
-          className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-          iconClassName="size-4"
-        />
-
-        <ConfirmPopover
-          side="left"
-          align="center"
-          onConfirm={() => onDelete(item.id)}
-          trigger={
+      <div className="pointer-events-none absolute top-1/2 right-0 z-30 -translate-y-1/2">
+        <div className="pointer-events-auto flex items-center gap-1 rounded-xl border border-zinc-200/60 bg-white/70 p-1 shadow-xs backdrop-blur-[6px] dark:border-zinc-500/40 dark:bg-zinc-700/70">
+          {showButtons && onEdit ? (
             <button
               type="button"
-              aria-label="Delete todo"
+              aria-label="Edit todo"
+              onClick={() => onEdit(item.id)}
               className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
             >
-              <Trash2 className="size-4" />
+              <Pencil className="size-4" />
             </button>
-          }
-        />
+          ) : null}
+
+          {showButtons && (
+            <CopyButton
+              text={item.label}
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+              iconClassName="size-4"
+            />
+          )}
+          {showButtons && (
+            <ConfirmPopover
+              side="left"
+              align="center"
+              onConfirm={() => onDelete(item.id)}
+              trigger={
+                <button
+                  type="button"
+                  aria-label="Delete todo"
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              }
+            />
+          )}
+          {showButtons && (
+            <button
+              ref={handleRef}
+              type="button"
+              aria-label="Reorder todo"
+              title="Drag to reorder"
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+            >
+              <GripVertical className="size-4" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -139,6 +178,7 @@ function PlayfulTodolist({
   defaultValue = DEFAULT_ITEMS,
   onChange,
   onEdit,
+  showButtons = true,
   className
 }: PlayfulTodolistProps) {
   const [items, setItems] = useControlledState<PlayfulTodoItem[]>({
@@ -155,6 +195,45 @@ function PlayfulTodolist({
     setItems(items.filter(t => t.id !== id))
   }
 
+  const handleDragEnd: DragDropEventHandlers['onDragEnd'] = ({
+    canceled,
+    operation
+  }) => {
+    if (canceled) return
+
+    const sourceId = operation.source?.id
+    const targetId = operation.target?.id
+    const sourceSortable = operation.source as
+      | { initialIndex?: number; index?: number }
+      | undefined
+
+    const from =
+      sourceId != null
+        ? items.findIndex(item => item.id === String(sourceId))
+        : (sourceSortable?.initialIndex ?? -1)
+    const targetIndexFromId =
+      targetId != null
+        ? items.findIndex(item => item.id === String(targetId))
+        : (sourceSortable?.index ?? -1)
+    const projectedIndex = sourceSortable?.index ?? -1
+    const to =
+      projectedIndex >= 0 && projectedIndex !== from
+        ? projectedIndex
+        : targetIndexFromId
+
+    if (from < 0 || to < 0) {
+      return
+    }
+    if (from === to) {
+      return
+    }
+
+    const nextItems = [...items]
+    const [moved] = nextItems.splice(from, 1)
+    nextItems.splice(to, 0, moved)
+    setItems(nextItems)
+  }
+
   return (
     <div
       className={cn(
@@ -167,17 +246,21 @@ function PlayfulTodolist({
           <p className="text-sm text-zinc-600 dark:text-zinc-100">是空的</p>
         </div>
       ) : (
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-600">
-          {items.map(item => (
-            <PlayfulTodoRow
-              key={item.id}
-              item={item}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              onEdit={onEdit}
-            />
-          ))}
-        </div>
+        <DragDropProvider onDragEnd={handleDragEnd}>
+          <div className="divide-y divide-zinc-200 dark:divide-zinc-600">
+            {items.map((item, index) => (
+              <PlayfulTodoRow
+                key={item.id}
+                index={index}
+                item={item}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={onEdit}
+                showButtons={showButtons}
+              />
+            ))}
+          </div>
+        </DragDropProvider>
       )}
     </div>
   )

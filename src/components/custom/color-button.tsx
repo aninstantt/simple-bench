@@ -4,7 +4,14 @@ import { Button } from '@/components/animate-ui/components/buttons/button'
 
 type ColorButtonStyle = { bg: string; hoverBg: string; color?: string }
 
-type ColorButtonType = 'green' | 'orange' | 'red' | 'pink' | 'yellow'
+type ColorButtonType =
+  | 'green'
+  | 'orange'
+  | 'red'
+  | 'pink'
+  | 'yellow'
+  | 'blue'
+  | 'purple'
 
 const COLOR_BUTTON_STYLES: Record<ColorButtonType, ColorButtonStyle> = {
   green: {
@@ -28,6 +35,16 @@ const COLOR_BUTTON_STYLES: Record<ColorButtonType, ColorButtonStyle> = {
     bg: 'bg-amber-200',
     hoverBg: 'hover:bg-amber-200/90',
     color: 'text-amber-900'
+  },
+  blue: {
+    bg: 'bg-[#efedff]',
+    hoverBg: 'hover:bg-[#efedff]/90',
+    color: 'text-[#5e68c2]'
+  },
+  purple: {
+    bg: 'bg-[#ffe4f4]',
+    hoverBg: 'hover:bg-[#ffe4f4]/90',
+    color: 'text-[#c25e86]'
   }
 }
 

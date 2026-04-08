@@ -1,4 +1,13 @@
-import { ListTodo, PlusIcon, Save, Trash2 } from 'lucide-react'
+import CryptoJS from 'crypto-js'
+import { useAtom } from 'jotai/react'
+import {
+  ListTodo,
+  PlusIcon,
+  Save,
+  Trash2,
+  Captions,
+  CaptionsOff
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { PlayfulTodolist } from '@/components/animate-ui/components/community/playful-todolist'
@@ -15,42 +24,70 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { showButtonsAtom } from '@/states/todo'
 
 import { loadTodoItems, autoSync } from './db'
 
+type TodoStateItem = Todo.TodoItem & {
+  id: string
+}
+
+function createTodoId() {
+  return `todo-${CryptoJS.lib.WordArray.random(16).toString(CryptoJS.enc.Hex)}`
+}
+
+function normalizeTodoItems(items: Todo.TodoItem[]): TodoStateItem[] {
+  return items.map(item => {
+    const id =
+      'id' in item && typeof item.id === 'string' && item.id.length > 0
+        ? item.id
+        : createTodoId()
+
+    return {
+      ...item,
+      id
+    }
+  })
+}
+
 export function TodoPage() {
   const [hydrated, setHydrated] = useState(false)
-  const [items, setItems] = useState<Todo.TodoItem[]>([])
+  const [items, setItems] = useState<TodoStateItem[]>([])
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogLabel, setDialogLabel] = useState('')
-  const [editIndex, setEditIndex] = useState<number | null>(null)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [showButtons, setShowButtons] = useAtom(showButtonsAtom)
 
+  const hydratedRef = useRef(hydrated)
+  hydratedRef.current = hydrated
   const itemsRef = useRef(items)
   itemsRef.current = items
 
   const openCreate = () => {
-    setEditIndex(null)
+    setEditId(null)
     setDialogLabel('')
     setDialogOpen(true)
   }
 
   const openEdit = (id: string) => {
-    const idx = Number(id)
-    setEditIndex(idx)
-    setDialogLabel(items[idx].label)
+    const item = items.find(item => item.id === id)
+    if (!item) return
+
+    setEditId(id)
+    setDialogLabel(item.label)
     setDialogOpen(true)
   }
 
   const handleConfirm = () => {
     const label = dialogLabel.trim()
     if (!label) return
-    if (editIndex !== null) {
+    if (editId !== null) {
       setItems(
-        items.map((item, i) => (i === editIndex ? { ...item, label } : item))
+        items.map(item => (item.id === editId ? { ...item, label } : item))
       )
     } else {
-      setItems([{ label, checked: false }, ...items])
+      setItems([{ id: createTodoId(), label, checked: false }, ...items])
     }
     setDialogOpen(false)
   }
@@ -61,18 +98,16 @@ export function TodoPage() {
 
   const hasCompleted = items.some(i => i.checked)
 
-  const playfulValue = items.map((i, idx) => ({ ...i, id: String(idx) }))
-
   useEffect(() => {
     void (async () => {
       const initial = await loadTodoItems()
-      setItems(initial)
+      setItems(normalizeTodoItems(initial))
       setHydrated(true)
     })()
   }, [])
 
   useEffect(() => {
-    if (hydrated) void autoSync(items)
+    if (hydratedRef.current) void autoSync(itemsRef.current)
   }, [items])
 
   return (
@@ -81,6 +116,18 @@ export function TodoPage() {
         <PageHeader icon={<ListTodo className="size-4 " />} title="待办" />
 
         <div className="flex gap-2">
+          <ColorButton
+            type="blue"
+            className="h-9 w-auto px-4"
+            aria-label={showButtons ? '隐藏按钮' : '显示按钮'}
+            onClick={() => setShowButtons(!showButtons)}
+          >
+            {showButtons ? (
+              <CaptionsOff className="size-4" />
+            ) : (
+              <Captions className="size-4" />
+            )}
+          </ColorButton>
           <ColorButton
             type="yellow"
             className="h-9 w-auto px-4"
@@ -115,16 +162,12 @@ export function TodoPage() {
           <EmptyState />
         ) : (
           <PlayfulTodolist
-            value={playfulValue}
+            value={items}
             onChange={next => {
-              setItems(
-                next.map(i => ({
-                  label: i.label,
-                  checked: i.checked
-                }))
-              )
+              setItems(next)
             }}
             onEdit={openEdit}
+            showButtons={showButtons}
           />
         )}
 
@@ -132,10 +175,10 @@ export function TodoPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-sm">
-                {editIndex !== null ? <>编辑待办</> : <>添加待办</>}
+                {editId !== null ? <>编辑待办</> : <>添加待办</>}
               </DialogTitle>
               <DialogDescription className="sr-only">
-                {editIndex !== null ? '修改待办内容' : '输入新的待办事项'}
+                {editId !== null ? '修改待办内容' : '输入新的待办事项'}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">

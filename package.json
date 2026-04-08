@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vp build",
-    "dev": "vp dev",
+    "dev": "vp dev --host",
     "lint": "eslint .",
     "prepare": "vp config",
-    "preview": "vp preview"
+    "preview": "vp preview --host"
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-rc.0",

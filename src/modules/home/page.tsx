@@ -91,7 +91,7 @@ export function HomePage() {
           <div
             className={`mt-4 flex w-full flex-col items-end gap-2 text-xs text-zinc-400 transition-opacity duration-500 ${showPoweredBy ? 'opacity-100' : 'opacity-0'}`}
           >
-            <p className="flex items-center justify-end">
+            <div className="flex items-center justify-end">
               <WrenchIcon
                 size={12}
                 className="mr-1 inline-block align-[-2px]"
@@ -105,9 +105,9 @@ export function HomePage() {
               >
                 Vite+
               </a>
-            </p>
+            </div>
 
-            <p className="flex items-center justify-end">
+            <div className="flex items-center justify-end">
               <GithubIcon size={12} className="mr-1 text-zinc-400" />
               <span>Source code on&nbsp;</span>
               <a
@@ -118,9 +118,9 @@ export function HomePage() {
               >
                 GitHub
               </a>
-            </p>
+            </div>
 
-            <p className="flex items-center justify-end">
+            <div className="flex items-center justify-end">
               <MapPinHouseIcon size={12} className="mr-1 text-zinc-400" />
               <span>Personal</span>&nbsp;
               <a
@@ -131,7 +131,7 @@ export function HomePage() {
               >
                 Space
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </section>

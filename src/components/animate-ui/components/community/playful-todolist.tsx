@@ -2,14 +2,13 @@
 
 import { DragDropProvider, type DragDropEventHandlers } from '@dnd-kit/react'
 import { useSortable } from '@dnd-kit/react/sortable'
-import { GripVertical, Pencil, Trash2 } from 'lucide-react'
+import { GripVertical, Pencil } from 'lucide-react'
 import { motion, type Transition } from 'motion/react'
 
 import {
   Checkbox,
   CheckboxIndicator
 } from '@/components/animate-ui/primitives/radix/checkbox'
-import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { CopyButton } from '@/components/custom/copy'
 import { Label } from '@/components/ui/label'
 import { useControlledState } from '@/hooks/use-controlled-state'
@@ -60,7 +59,6 @@ function PlayfulTodoRow({
   index,
   item,
   onToggle,
-  onDelete,
   onEdit,
   showButtons = true
 }: PlayfulTodoRowProps) {
@@ -121,42 +119,24 @@ function PlayfulTodoRow({
       </div>
 
       <div className="pointer-events-none absolute top-1/2 right-0 z-30 -translate-y-1/2">
-        <div className="pointer-events-auto flex items-center gap-1 rounded-xl border border-zinc-200/60 bg-white/70 p-1 shadow-xs backdrop-blur-[6px] dark:border-zinc-500/40 dark:bg-zinc-700/70">
-          {showButtons && onEdit ? (
-            <button
-              type="button"
-              aria-label="Edit todo"
-              onClick={() => onEdit(item.id)}
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-            >
-              <Pencil className="size-4" />
-            </button>
-          ) : null}
-
-          {showButtons && (
+        {showButtons && (
+          <div className="pointer-events-auto flex items-center gap-1 rounded-xl border border-zinc-200/60 bg-white/70 p-1 shadow-xs backdrop-blur-[6px] dark:border-zinc-500/40 dark:bg-zinc-700/70">
+            {onEdit ? (
+              <button
+                type="button"
+                aria-label="Edit todo"
+                onClick={() => onEdit(item.id)}
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+              >
+                <Pencil className="size-4" />
+              </button>
+            ) : null}
             <CopyButton
               text={item.label}
               className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
               iconClassName="size-4"
             />
-          )}
-          {showButtons && (
-            <ConfirmPopover
-              side="left"
-              align="center"
-              onConfirm={() => onDelete(item.id)}
-              trigger={
-                <button
-                  type="button"
-                  aria-label="Delete todo"
-                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              }
-            />
-          )}
-          {showButtons && (
+
             <button
               ref={handleRef}
               type="button"
@@ -166,8 +146,8 @@ function PlayfulTodoRow({
             >
               <GripVertical className="size-4" />
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )

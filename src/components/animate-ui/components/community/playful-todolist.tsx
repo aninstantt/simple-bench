@@ -2,7 +2,7 @@
 
 import { DragDropProvider, type DragDropEventHandlers } from '@dnd-kit/react'
 import { useSortable } from '@dnd-kit/react/sortable'
-import { GripVertical, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { motion, type Transition } from 'motion/react'
 
 import {
@@ -24,7 +24,7 @@ type PlayfulTodolistProps = {
   value?: PlayfulTodoItem[]
   defaultValue?: PlayfulTodoItem[]
   onChange?: (next: PlayfulTodoItem[]) => void
-  onEdit?: (id: string) => void
+  onEdit: (id: string) => void
   showButtons?: boolean
   className?: string
 }
@@ -51,7 +51,7 @@ type PlayfulTodoRowProps = {
   item: PlayfulTodoItem
   onToggle: (id: string, checked: boolean) => void
   onDelete: (id: string) => void
-  onEdit?: (id: string) => void
+  onEdit: (id: string) => void
   showButtons?: boolean
 }
 
@@ -62,7 +62,7 @@ function PlayfulTodoRow({
   onEdit,
   showButtons = true
 }: PlayfulTodoRowProps) {
-  const { ref, sourceRef, targetRef, handleRef, isDragging } = useSortable({
+  const { ref, sourceRef, targetRef, isDragging } = useSortable({
     id: item.id,
     index,
     group: 'playful-todo-list'
@@ -119,35 +119,24 @@ function PlayfulTodoRow({
       </div>
 
       <div className="pointer-events-none absolute top-1/2 right-0 z-30 -translate-y-1/2">
-        {showButtons && (
-          <div className="pointer-events-auto flex items-center gap-1 rounded-xl border border-zinc-200/60 bg-white/70 p-1 shadow-xs backdrop-blur-[6px] dark:border-zinc-500/40 dark:bg-zinc-700/70">
-            {onEdit ? (
-              <button
-                type="button"
-                aria-label="Edit todo"
-                onClick={() => onEdit(item.id)}
-                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-              >
-                <Pencil className="size-4" />
-              </button>
-            ) : null}
+        <div className="pointer-events-auto flex items-center rounded-lg bg-white/70 p-0.5 backdrop-blur-[6px] dark:bg-zinc-700/70">
+          {showButtons ? (
+            <button
+              type="button"
+              aria-label="Edit todo"
+              onClick={() => onEdit(item.id)}
+              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+            >
+              <Pencil className="size-3.5" />
+            </button>
+          ) : (
             <CopyButton
               text={item.label}
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-              iconClassName="size-4"
+              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+              iconClassName="size-3.5"
             />
-
-            <button
-              ref={handleRef}
-              type="button"
-              aria-label="Reorder todo"
-              title="Drag to reorder"
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-            >
-              <GripVertical className="size-4" />
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

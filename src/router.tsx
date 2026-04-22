@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 
 import { RootLayout } from './layouts/root-layout'
+import { GlobalErrorPage } from './modules/error/page'
 import { HomePage } from './modules/home/page'
 import { NotFoundPage } from './modules/not-found/page'
 import { registerAesRoutes } from './routes/aes'
@@ -39,6 +40,7 @@ export const routeTree = rootRoute.addChildren([
 
 const router = createRouter({
   routeTree,
+  defaultErrorComponent: GlobalErrorPage,
   defaultNotFoundComponent: NotFoundPage
 })
 

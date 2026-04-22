@@ -4,6 +4,7 @@ declare global {
       id: number
       title: string
       group: string
+      updateTime: number
     }
 
     type NoteItem = {
@@ -11,6 +12,7 @@ declare global {
       title: string
       group: string
       content: string
+      updateTime: number
     }
 
     type TableNote = {
@@ -18,6 +20,7 @@ declare global {
       title: string
       group: string
       content: string
+      updateTime: number
     }
   }
 }

@@ -119,7 +119,7 @@ export function TodoPage() {
           <ColorButton
             type="blue"
             className="h-9 w-auto px-4"
-            aria-label={showButtons ? '隐藏按钮' : '显示按钮'}
+            aria-label={showButtons ? '切换为复制按钮' : '切换为编辑按钮'}
             onClick={() => setShowButtons(!showButtons)}
           >
             {showButtons ? (

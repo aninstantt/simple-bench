@@ -18,8 +18,11 @@ export function CopyButton({
   iconClassName = 'size-3',
   showText = false
 }: CopyButtonProps) {
+  const normalizedText = text.trim()
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<number | null>(null)
+
+  if (!normalizedText) return null
 
   useEffect(() => {
     return () => {
@@ -29,9 +32,8 @@ export function CopyButton({
   }, [])
 
   const { run: onCopy } = useThrottleFn(async () => {
-    if (!text) return
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(normalizedText)
       setCopied(true)
       if (timerRef.current) window.clearTimeout(timerRef.current)
       timerRef.current = window.setTimeout(() => {
@@ -40,7 +42,7 @@ export function CopyButton({
       }, 1500)
     } catch {
       toast.error('复制失败，请手动选中复制', {
-        description: text,
+        description: normalizedText,
         richColors: true,
         closeButton: true,
         duration: 5000,

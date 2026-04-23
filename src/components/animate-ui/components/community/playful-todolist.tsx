@@ -119,22 +119,23 @@ function PlayfulTodoRow({
       </div>
 
       <div className="pointer-events-none absolute top-1/2 right-0 z-30 -translate-y-1/2">
-        <div className="pointer-events-auto flex items-center rounded-lg bg-white/70 p-0.5 backdrop-blur-[6px] dark:bg-zinc-700/70">
-          {showButtons ? (
-            <button
-              type="button"
-              aria-label="Edit todo"
-              onClick={() => onEdit(item.id)}
-              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-            >
-              <Pencil className="size-3.5" />
-            </button>
-          ) : (
-            <CopyButton
-              text={item.label}
-              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
-              iconClassName="size-3.5"
-            />
+        <div className="pointer-events-auto flex items-center gap-1 rounded-lg bg-white/70 p-1 backdrop-blur-[8px] dark:bg-zinc-700/70">
+          {showButtons && (
+            <>
+              <button
+                type="button"
+                aria-label="Edit todo"
+                onClick={() => onEdit(item.id)}
+                className="inline-flex size-7 items-center justify-center rounded-md bg-zinc-100 text-zinc-600 transition-colors transition-transform hover:scale-[1.03] hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+              >
+                <Pencil className="size-3.5" />
+              </button>
+              <CopyButton
+                text={item.label}
+                className="inline-flex size-7 items-center justify-center rounded-md bg-zinc-100 text-zinc-600 transition-colors transition-transform hover:scale-[1.03] hover:text-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-300/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white active:scale-[0.98] dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-700/50 dark:focus-visible:ring-offset-zinc-600"
+                iconClassName="size-3.5"
+              />
+            </>
           )}
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai/react'
 import { Home } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -8,14 +9,11 @@ import { WrenchIcon } from '@/components/animated-icons/wrench'
 import { PageHeader } from '@/components/custom/page-header'
 import { WithLoading } from '@/components/custom/with-loading'
 import AnimatedTypingMotion from '@/components/shadcn-space/animated-text/animated-text-03'
+import { homeCopyAtom } from '@/states/user-config'
 
-const HOME_COPY =
-  '这是一个装在浏览器里的离线工具箱🧰，断网也能用🛜，数据只存在你自己的设备上🔒'
 const VITE_PLUS_URL = 'https://viteplus.dev/'
 const GITHUB_URL = 'https://github.com/aninstantt/simple-bench'
 const PERSONAL_HOME_URL = 'https://goyave.space'
-
-const TYPING_DURATION_MS = HOME_COPY.length * 20 + 200
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>
@@ -23,14 +21,17 @@ type BeforeInstallPromptEvent = Event & {
 }
 
 export function HomePage() {
+  const homeCopy = useAtomValue(homeCopyAtom)
   const [showPoweredBy, setShowPoweredBy] = useState(false)
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowPoweredBy(true), TYPING_DURATION_MS)
+    const typingDurationMs = homeCopy.length * 20 + 200
+    setShowPoweredBy(false)
+    const timer = setTimeout(() => setShowPoweredBy(true), typingDurationMs)
     return () => clearTimeout(timer)
-  }, [])
+  }, [homeCopy])
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -55,10 +56,10 @@ export function HomePage() {
       <section className="mx-auto max-w-lg space-y-4">
         <PageHeader icon={<Home className="size-4" />} title="主页" />
 
-        <div className="rounded-[12px] border border-zinc-200 bg-white px-4 py-4 dark:border-zinc-600 dark:bg-zinc-600">
+        <div className="rounded-[12px] bg-white px-4 py-4 dark:bg-zinc-600">
           <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
             <AnimatedTypingMotion
-              words={[HOME_COPY]}
+              words={[homeCopy]}
               stepMs={20}
               loop={false}
               className="text-sm leading-6 text-zinc-700 dark:text-zinc-100"

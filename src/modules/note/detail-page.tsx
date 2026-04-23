@@ -271,11 +271,6 @@ export function NoteDetailPage() {
       groupRef.current = trimmedGroup
       markSavedChanges()
       setIsAutoSaving(false)
-      void navigate({
-        to: '/note/$id',
-        params: { id: String(newId) },
-        replace: true
-      })
       return true
     }
 
@@ -329,6 +324,17 @@ export function NoteDetailPage() {
       setGroup(groupRef.current)
       setMarkdown(markdownRef.current)
       setEditing(false)
+
+      if (isNew) {
+        const createdNoteId = createdNoteIdRef.current
+        if (createdNoteId != null) {
+          void navigate({
+            to: '/note/$id',
+            params: { id: String(createdNoteId) },
+            replace: true
+          })
+        }
+      }
     }
   }
 

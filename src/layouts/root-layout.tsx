@@ -26,12 +26,18 @@ import { HomeIcon } from '@/components/animated-icons/home'
 import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock'
 import { Toaster } from '@/components/ui/sonner'
-import { backgroundAtom, dockVisibleAtom } from '@/states/user-config'
+import {
+  backgroundAtom,
+  dockMenuItemsAtom,
+  dockVisibleAtom,
+  normalizeDockMenuItems
+} from '@/states/user-config'
 
 const dockAnimatedIconClass = 'size-full [&_svg]:h-full [&_svg]:w-full'
 const dockIconSize = 32
 
 type DockNavItem = {
+  key: State.UserConfig.DockMenuKey
   label: string
   onClick: () => void
   icon: ReactNode
@@ -44,21 +50,25 @@ export function RootLayout() {
   const navigate = useNavigate()
   const [dockVisible, setDockVisible] = useAtom(dockVisibleAtom)
   const [backgroundMode] = useAtom(backgroundAtom)
+  const [dockMenuItems] = useAtom(dockMenuItemsAtom)
 
-  const navItems: DockNavItem[] = [
-    {
+  const navItemsByKey: Record<State.UserConfig.DockMenuKey, DockNavItem> = {
+    home: {
+      key: 'home',
       label: '主页',
       onClick: () => navigate({ to: '/' }),
       icon: <HomeIcon className={dockAnimatedIconClass} size={dockIconSize} />
     },
-    {
+    aes: {
+      key: 'aes',
       label: '加解密',
       onClick: () => navigate({ to: '/aes' }),
       icon: (
         <FolderLockIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
     },
-    {
+    todo: {
+      key: 'todo',
       label: '待办',
       onClick: () => navigate({ to: '/todo' }),
       icon: (
@@ -68,22 +78,27 @@ export function RootLayout() {
         />
       )
     },
-    {
+    note: {
+      key: 'note',
       label: '笔记',
       onClick: () => navigate({ to: '/note' }),
       icon: (
         <BookTextIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
     }
-  ]
+  }
+
+  const navItems = normalizeDockMenuItems(dockMenuItems)
+    .filter(item => item.visible)
+    .map(item => navItemsByKey[item.key])
 
   return (
     <div
-      className="relative flex flex-1 flex-col bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-100/50 via-transparent to-transparent px-4 pt-6 pb-4 text-left dark:from-zinc-600/20"
+      className="relative flex flex-1 flex-col bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-100/50 via-transparent to-transparent  text-left dark:from-zinc-600/20"
       style={{ minHeight: '100dvh' }}
     >
       <div
-        className="flex flex-1 flex-col rounded-2xl border border-zinc-200/70 bg-white p-6 pb-8 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)] dark:border-zinc-600/60 dark:bg-zinc-900 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_8px_24px_rgba(0,0,0,0.15)]"
+        className="flex flex-1 flex-col rounded-2xl border-zinc-200/70 bg-white p-4 pb-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)] dark:border-zinc-600/60 dark:bg-zinc-900 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_8px_24px_rgba(0,0,0,0.15)]"
         style={{ contain: 'layout paint' }}
       >
         <div className="fixed inset-0 -z-10">
@@ -115,7 +130,7 @@ export function RootLayout() {
               <Dock className="items-end pb-3" magnification={50} distance={50}>
                 {navItems.map(item => (
                   <DockItem
-                    key={item.label}
+                    key={item.key}
                     onClick={item.onClick}
                     className={itemClass}
                   >

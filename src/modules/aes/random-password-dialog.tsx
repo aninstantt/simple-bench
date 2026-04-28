@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai/react'
 import { MapPlus, RefreshCw } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { CopyButton } from '@/components/custom/copy'
@@ -34,29 +34,75 @@ const PASSWORD_OPTION_ITEMS = [
   }
 ] as const
 
+function clampPasswordLength(length: number) {
+  return Math.min(MAX_PASSWORD_LENGTH, Math.max(MIN_PASSWORD_LENGTH, length))
+}
+
+function resolveLengthInput(value: string, fallback: number) {
+  const trimmedValue = value.trim()
+  if (trimmedValue === '') return fallback
+
+  const length = Number(trimmedValue)
+  if (!Number.isInteger(length)) return fallback
+
+  return clampPasswordLength(length)
+}
+
 export function RandomPasswordDialog() {
   const [options, setOptions] = useAtom(randomPasswordOptionsAtom)
+  const [lengthInputValue, setLengthInputValue] = useState(() =>
+    String(options.length)
+  )
   const [password, setPassword] = useState(() =>
     generateRandomPassword(options)
   )
 
+  useEffect(() => {
+    setLengthInputValue(String(options.length))
+  }, [options.length])
+
   const handleLengthChange = (value: string) => {
+    if (!/^\d*$/.test(value)) return
+
+    setLengthInputValue(value)
+    if (value === '') return
+
     const length = Number(value)
-    if (!Number.isInteger(length)) return
-    const boundedLength = Math.min(
-      MAX_PASSWORD_LENGTH,
-      Math.max(MIN_PASSWORD_LENGTH, length)
-    )
+    if (
+      !Number.isInteger(length) ||
+      length < MIN_PASSWORD_LENGTH ||
+      length > MAX_PASSWORD_LENGTH
+    ) {
+      return
+    }
 
     setOptions(prev => ({
       ...prev,
-      length: boundedLength
+      length
     }))
   }
 
+  const commitLengthInput = () => {
+    const length = resolveLengthInput(lengthInputValue, options.length)
+
+    setLengthInputValue(String(length))
+    setOptions(prev => ({
+      ...prev,
+      length
+    }))
+
+    return length
+  }
+
   const handleGenerate = () => {
+    const length = commitLengthInput()
+    const nextOptions = {
+      ...options,
+      length
+    }
+
     try {
-      setPassword(generateRandomPassword(options))
+      setPassword(generateRandomPassword(nextOptions))
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '生成失败', {
         richColors: true,
@@ -78,7 +124,7 @@ export function RandomPasswordDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>生成随机密码</DialogTitle>
         </DialogHeader>
@@ -96,8 +142,11 @@ export function RandomPasswordDialog() {
               type="number"
               min={MIN_PASSWORD_LENGTH}
               max={MAX_PASSWORD_LENGTH}
-              value={options.length}
+              step={1}
+              inputMode="numeric"
+              value={lengthInputValue}
               onChange={e => handleLengthChange(e.target.value)}
+              onBlur={commitLengthInput}
               className="w-16 text-[13px]"
             />
           </div>

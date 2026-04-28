@@ -83,10 +83,10 @@ export function RandomPasswordDialog() {
           <DialogTitle>生成随机密码</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="space-y-4 py-1">
           <div className="flex items-center gap-3">
             <label
-              className="shrink-0 text-[13px] font-medium text-zinc-600 dark:text-zinc-400"
+              className="shrink-0 text-[12px] font-medium text-zinc-600 dark:text-zinc-400"
               htmlFor="random-password-length"
             >
               长度
@@ -98,7 +98,7 @@ export function RandomPasswordDialog() {
               max={MAX_PASSWORD_LENGTH}
               value={options.length}
               onChange={e => handleLengthChange(e.target.value)}
-              className="w-16 text-[14px]"
+              className="w-16 text-[13px]"
             />
           </div>
 
@@ -106,7 +106,7 @@ export function RandomPasswordDialog() {
             {PASSWORD_OPTION_ITEMS.map(item => (
               <label
                 key={item.key}
-                className="flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-zinc-50 px-2 text-[13px] text-zinc-700 transition-colors hover:bg-zinc-100 dark:bg-zinc-600/40 dark:text-zinc-200 dark:hover:bg-zinc-600/60"
+                className="flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-zinc-50 px-2 text-[12px] text-zinc-700 transition-colors hover:bg-zinc-100 dark:bg-zinc-600/40 dark:text-zinc-200 dark:hover:bg-zinc-600/60"
               >
                 <input
                   type="checkbox"
@@ -125,7 +125,7 @@ export function RandomPasswordDialog() {
             ))}
           </div>
 
-          <div className="rounded-lg bg-zinc-50 px-3 py-4 font-mono text-[13px] leading-relaxed break-all text-zinc-700 select-all dark:bg-zinc-600/50 dark:text-zinc-100">
+          <div className="rounded-lg bg-zinc-50 px-3 py-4 font-mono text-[12px] leading-relaxed break-all text-zinc-700 select-all dark:bg-zinc-600/50 dark:text-zinc-100">
             {password}
           </div>
 
@@ -134,12 +134,12 @@ export function RandomPasswordDialog() {
               text={password}
               showText
               iconClassName="size-3.5"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:scale-[0.97] dark:text-zinc-300 dark:hover:bg-zinc-600"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[12px] font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:scale-[0.97] dark:text-zinc-300 dark:hover:bg-zinc-600"
             />
             <button
               type="button"
               onClick={handleGenerate}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:scale-[0.97] dark:text-zinc-300 dark:hover:bg-zinc-600"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[12px] font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:scale-[0.97] dark:text-zinc-300 dark:hover:bg-zinc-600"
             >
               <RefreshCw className="size-3.5" />
               生成

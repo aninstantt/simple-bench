@@ -12,6 +12,7 @@ import { NotFoundPage } from './modules/not-found/page'
 import { registerAesRoutes } from './routes/aes'
 import { registerCatchAllRoute } from './routes/catch-all'
 import { registerNoteRoutes } from './routes/note'
+import { registerSpreadRoutes } from './routes/spread'
 import { registerTodoRoutes } from './routes/todo'
 
 const rootRoute = createRootRoute({
@@ -25,6 +26,7 @@ const indexRoute = createRoute({
 })
 
 const aesRoute = registerAesRoutes(rootRoute)
+const spreadRoute = registerSpreadRoutes(rootRoute)
 const todoRoute = registerTodoRoutes(rootRoute)
 const [noteRoute, noteDetailRoute] = registerNoteRoutes(rootRoute)
 const catchAllRoute = registerCatchAllRoute(rootRoute)
@@ -32,6 +34,7 @@ const catchAllRoute = registerCatchAllRoute(rootRoute)
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   aesRoute,
+  spreadRoute,
   todoRoute,
   noteRoute,
   noteDetailRoute,

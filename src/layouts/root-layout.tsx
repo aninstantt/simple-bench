@@ -23,6 +23,7 @@ const FireworksBackground = lazy(() =>
 import { FolderLockIcon } from '@/components/animated-icons/aes'
 import { BookTextIcon } from '@/components/animated-icons/book-text'
 import { HomeIcon } from '@/components/animated-icons/home'
+import { RadioIcon } from '@/components/animated-icons/radio'
 import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock'
 import { Toaster } from '@/components/ui/sonner'
@@ -66,6 +67,12 @@ export function RootLayout() {
       icon: (
         <FolderLockIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
+    },
+    spread: {
+      key: 'spread',
+      label: '传播',
+      onClick: () => navigate({ to: '/spread' }),
+      icon: <RadioIcon className={dockAnimatedIconClass} size={dockIconSize} />
     },
     todo: {
       key: 'todo',

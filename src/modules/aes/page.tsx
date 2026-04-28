@@ -179,7 +179,7 @@ export function AesPage() {
                 type="button"
                 onClick={() => void handleSaveKey()}
                 className={cn(
-                  'inline-flex w-[80px] shrink-0 cursor-pointer touch-manipulation items-center gap-1 self-start rounded-md px-2 py-1 text-xs font-medium transition-colors active:scale-[0.97] sm:self-center',
+                  'inline-flex shrink-0 cursor-pointer touch-manipulation items-center gap-1 self-start rounded-md px-2 py-1 text-xs font-medium transition-colors active:scale-[0.97] sm:self-center',
                   keySaved
                     ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600 dark:hover:text-zinc-200'

@@ -6,7 +6,7 @@ declare global {
       type Theme = 'dark' | 'light'
       type Language = 'chinese' | 'english'
       type BackgroundMode = 'gravity' | 'fireworks' | 'none'
-      type DockMenuKey = 'home' | 'aes' | 'todo' | 'note'
+      type DockMenuKey = 'home' | 'aes' | 'spread' | 'todo' | 'note'
       type DockMenuItem = {
         key: DockMenuKey
         visible: boolean

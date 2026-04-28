@@ -16,5 +16,14 @@ declare global {
     namespace Todo {
       type ShowButtons = boolean
     }
+
+    namespace Password {
+      type RandomOptions = {
+        length: number
+        withDigits: boolean
+        withSymbols: boolean
+        withoutSimilarLetters: boolean
+      }
+    }
   }
 }

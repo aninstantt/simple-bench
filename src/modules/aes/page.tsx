@@ -21,6 +21,7 @@ import { encrypt, decrypt } from '@/lib/aes'
 import { cn } from '@/lib/utils'
 
 import { storeAesKey, retrieveAesKey, storeMode, retrieveMode } from './db'
+import { RandomPasswordDialog } from './random-password-dialog'
 
 export function AesPage() {
   const [hydrated, setHydrated] = useState(false)
@@ -126,7 +127,7 @@ export function AesPage() {
         />
 
         <div className="space-y-4">
-          <div>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleToggleMode}
@@ -135,6 +136,7 @@ export function AesPage() {
               <ArrowDownUp className="size-3 text-zinc-400 transition-transform duration-300 group-hover:rotate-180 dark:text-zinc-600" />
               <span className="text-zinc-400 dark:text-zinc-600">切换模式</span>
             </button>
+            <RandomPasswordDialog />
           </div>
 
           <div className="space-y-2">

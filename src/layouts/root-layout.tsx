@@ -68,10 +68,10 @@ export function RootLayout() {
         <FolderLockIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
     },
-    spread: {
-      key: 'spread',
-      label: '传播',
-      onClick: () => navigate({ to: '/spread' }),
+    share: {
+      key: 'share',
+      label: '互传',
+      onClick: () => navigate({ to: '/share' }),
       icon: <RadioIcon className={dockAnimatedIconClass} size={dockIconSize} />
     },
     todo: {

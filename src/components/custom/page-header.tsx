@@ -50,7 +50,7 @@ import {
 const dockMenuItemLabels: Record<State.UserConfig.DockMenuKey, string> = {
   home: '主页',
   aes: '加解密',
-  spread: '传播',
+  share: '互传',
   todo: '待办',
   note: '笔记'
 }

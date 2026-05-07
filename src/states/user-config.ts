@@ -13,8 +13,8 @@ export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
   { key: 'home', visible: true },
   { key: 'aes', visible: true },
   { key: 'todo', visible: true },
-  { key: 'note', visible: true }
-  // { key: 'spread', visible: true }
+  { key: 'note', visible: true },
+  { key: 'share', visible: true }
 ]
 
 export function normalizeDockMenuItems(

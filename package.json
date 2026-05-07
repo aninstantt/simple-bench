@@ -4,8 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "api:dev": "node scripts/local-api-server.js",
     "build": "tsc -b && vp build",
-    "dev": "vp dev --host",
+    "dev": "START_LOCAL_API_SERVER=true vp dev --host",
+    "dev:remote": "vp dev --host",
     "lint": "eslint .",
     "prepare": "vp config",
     "preview": "vp preview --host"
@@ -30,6 +32,8 @@
     "lucide-react": "^0.577.0",
     "motion": "^12.38.0",
     "next-themes": "^0.4.6",
+    "pusher": "^5.3.3",
+    "pusher-js": "^8.5.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

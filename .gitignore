@@ -23,4 +23,6 @@ dist-ssr
 .pnpm-store
 
 
+.env.local
+
 process.md

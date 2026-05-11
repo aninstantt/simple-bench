@@ -12,6 +12,10 @@ type ColorButtonType =
   | 'yellow'
   | 'blue'
   | 'purple'
+  | 'blue2'
+  | 'purple2'
+  | 'green2'
+  | 'yellow2'
 
 const COLOR_BUTTON_STYLES: Record<ColorButtonType, ColorButtonStyle> = {
   green: {
@@ -45,7 +49,33 @@ const COLOR_BUTTON_STYLES: Record<ColorButtonType, ColorButtonStyle> = {
     bg: 'bg-[#ffe4f4]',
     hoverBg: 'hover:bg-[#ffe4f4]/90',
     color: 'text-[#c25e86]'
+  },
+  blue2: {
+    bg: 'bg-[#f5fefc]',
+    hoverBg: 'hover:bg-[#f5fefc]/90',
+    color: 'text-[#0078ff]'
+  },
+  purple2: {
+    bg: 'bg-[#fff6ff]',
+    hoverBg: 'hover:bg-[#fff6ff]/90',
+    color: 'text-[#c536fc]'
+  },
+  green2: {
+    bg: 'bg-[#fffaf0]',
+    hoverBg: 'hover:bg-[#fffaf0]/90',
+    color: 'text-[#02B727]'
+  },
+  yellow2: {
+    bg: 'bg-[#fbfaec]',
+    hoverBg: 'hover:bg-[#fbfaec]/90',
+    color: 'text-[#a7b702]'
   }
+}
+
+const GRAY_BUTTON_STYLE: ColorButtonStyle = {
+  bg: 'bg-zinc-100 dark:bg-zinc-800',
+  hoverBg: 'hover:bg-zinc-100/90 dark:hover:bg-zinc-800/90',
+  color: 'text-zinc-500 dark:text-zinc-400'
 }
 
 type ColorButtonProps = {
@@ -54,6 +84,7 @@ type ColorButtonProps = {
   children: ReactNode
   className?: string
   disabled?: boolean
+  gray?: boolean
   'aria-label'?: string
 }
 
@@ -63,10 +94,11 @@ export function ColorButton({
   children,
   className,
   disabled,
+  gray = false,
   'aria-label': ariaLabel,
   ...props
 }: ColorButtonProps) {
-  const styles = COLOR_BUTTON_STYLES[type]
+  const styles = gray ? GRAY_BUTTON_STYLE : COLOR_BUTTON_STYLES[type]
 
   return (
     <Button

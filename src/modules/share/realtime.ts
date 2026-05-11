@@ -1,38 +1,19 @@
 import Pusher, { type Channel, type PresenceChannel } from 'pusher-js'
 
+import { getDefaultSenderId, getDefaultSenderName } from './identity'
+
 export const PUSHER_CHANNEL_NAME = 'presence-share'
 export const PUSHER_MESSAGE_EVENT = 'share-message'
-
-export type PusherConnectionState =
-  | 'initialized'
-  | 'connecting'
-  | 'connected'
-  | 'unavailable'
-  | 'failed'
-  | 'disconnected'
-
-export type PusherSubscriptionState = 'pending' | 'subscribed' | 'error'
-
-export type SharePusherMessage = {
-  id: string
-  text: string
-  senderId: string
-  createdAt: string
-}
-
-export type SharePusherMember = {
-  id: string
-  name: string
-}
 
 type SendMessageInput = {
   text: string
   senderId?: string
+  senderName?: string
   channelName?: string
 }
 
 type SendMessageResponse = {
-  message: SharePusherMessage
+  message: Share.PusherMessage
 }
 
 let pusherClient: Pusher | null = null
@@ -57,7 +38,8 @@ export function connectPusher() {
       transport: 'ajax',
       params: {
         user_id: getDefaultSenderId(),
-        user_name: getDefaultSenderName()
+        user_name: getDefaultSenderName(),
+        user_peer_id: getDefaultSenderId()
       }
     }
   })
@@ -73,18 +55,20 @@ export function disconnectPusher() {
 
 export function getPusherConnectionState() {
   return (pusherClient?.connection.state ||
-    'initialized') as PusherConnectionState
+    'initialized') as Share.PusherConnectionState
 }
 
 export function listenToPusherConnection(
-  listener: (state: PusherConnectionState) => void
+  listener: (state: Share.PusherConnectionState) => void
 ) {
   const pusher = connectPusher()
-  const stateChangeHandler = (state: { current: PusherConnectionState }) => {
+  const stateChangeHandler = (state: {
+    current: Share.PusherConnectionState
+  }) => {
     listener(state.current)
   }
 
-  listener(pusher.connection.state as PusherConnectionState)
+  listener(pusher.connection.state as Share.PusherConnectionState)
   pusher.connection.bind('state_change', stateChangeHandler)
 
   return () => {
@@ -93,11 +77,11 @@ export function listenToPusherConnection(
 }
 
 export function listenToPusherMessages(
-  listener: (message: SharePusherMessage) => void,
+  listener: (message: Share.PusherMessage) => void,
   channelName = PUSHER_CHANNEL_NAME
 ) {
   const channel = getChannel(channelName)
-  const messageHandler = (message: SharePusherMessage) => {
+  const messageHandler = (message: Share.PusherMessage) => {
     listener(message)
   }
 
@@ -109,7 +93,7 @@ export function listenToPusherMessages(
 }
 
 export function listenToPusherSubscription(
-  listener: (state: PusherSubscriptionState) => void,
+  listener: (state: Share.PusherSubscriptionState) => void,
   channelName = PUSHER_CHANNEL_NAME
 ) {
   const channel = getChannel(channelName)
@@ -131,7 +115,7 @@ export function listenToPusherSubscription(
 }
 
 export function listenToPusherMembers(
-  listener: (members: SharePusherMember[]) => void,
+  listener: (members: Share.PusherMember[]) => void,
   channelName = PUSHER_CHANNEL_NAME
 ) {
   const channel = getPresenceChannel(channelName)
@@ -154,6 +138,7 @@ export function listenToPusherMembers(
 export async function sendPusherMessage({
   text,
   senderId = getDefaultSenderId(),
+  senderName = getDefaultSenderName(),
   channelName = PUSHER_CHANNEL_NAME
 }: SendMessageInput) {
   const response = await fetch('/api/pusher-send', {
@@ -161,7 +146,7 @@ export async function sendPusherMessage({
     headers: {
       'content-type': 'application/json'
     },
-    body: JSON.stringify({ channelName, senderId, text })
+    body: JSON.stringify({ channelName, senderId, senderName, text })
   })
 
   if (!response.ok) {
@@ -191,33 +176,17 @@ function getPresenceChannel(channelName: string) {
 }
 
 function getPusherMembers(channel: PresenceChannel) {
-  const members: SharePusherMember[] = []
+  const members: Share.PusherMember[] = []
 
-  channel.members.each((member: { id: string; info?: { name?: string } }) => {
-    members.push({
-      id: member.id,
-      name: member.info?.name || member.id
-    })
-  })
+  channel.members.each(
+    (member: { id: string; info?: { name?: string; peerId?: string } }) => {
+      members.push({
+        id: member.id,
+        name: member.info?.name || member.id,
+        peerId: member.info?.peerId || member.id
+      })
+    }
+  )
 
   return members.sort((a, b) => a.name.localeCompare(b.name))
-}
-
-function getDefaultSenderId() {
-  const storageKey = 'simple-bench-pusher-sender-id'
-  const existingSenderId = window.localStorage.getItem(storageKey)
-
-  if (existingSenderId) {
-    return existingSenderId
-  }
-
-  const senderId = crypto.randomUUID()
-  window.localStorage.setItem(storageKey, senderId)
-
-  return senderId
-}
-
-function getDefaultSenderName() {
-  const senderId = getDefaultSenderId()
-  return `Member ${senderId.slice(0, 8)}`
 }

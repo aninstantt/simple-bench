@@ -1,116 +1,97 @@
 import {
   DoorOpen,
-  CircleAlert,
-  LoaderCircle,
-  MessageCircle,
+  FileSpreadsheet,
+  FolderDown,
+  MessageCircleMore,
   Radio,
-  Send,
   UsersRound,
-  Wifi
+  X
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { ColorButton } from '@/components/custom/color-button'
+import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { PageHeader } from '@/components/custom/page-header'
 import { WithLoading } from '@/components/custom/with-loading'
 import Button05 from '@/components/shadcn-space/button/button-05'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
 import {
-  getPusherConnectionState,
-  listenToPusherConnection,
-  listenToPusherMembers,
-  listenToPusherMessages,
-  listenToPusherSubscription,
-  sendPusherMessage,
-  type PusherConnectionState,
-  type PusherSubscriptionState,
-  type SharePusherMember,
-  type SharePusherMessage
-} from '@/lib/pusher'
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 
+import { getDefaultSenderId, getDefaultSenderName } from './identity'
+import { MemberList } from './member-list'
+import { MessagePanel } from './message-panel'
+import { ReceivedListPanel } from './received-list-panel'
+import { ShareListPanel } from './share-list-panel'
+import { useSharePeer } from './use-share-peer'
+import { useShareRealtime } from './use-share-realtime'
+
 export function SharePage() {
-  const [connectionState, setConnectionState] = useState<PusherConnectionState>(
-    () => getPusherConnectionState()
-  )
-  const [subscriptionState, setSubscriptionState] =
-    useState<PusherSubscriptionState>('pending')
   const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<SharePusherMessage[]>([])
-  const [members, setMembers] = useState<SharePusherMember[]>([])
+  const [receivedItems, setReceivedItems] = useState<Share.ListItem[]>([])
+  const [senderId] = useState(() => getDefaultSenderId())
+  const [senderName] = useState(() => getDefaultSenderName())
+  const [shareItems, setShareItems] = useState<Share.ListItem[]>([])
   const [showMembers, setShowMembers] = useState(false)
-  const [error, setError] = useState('')
-  const [sending, setSending] = useState(false)
+  const [showMessages, setShowMessages] = useState(true)
+  const [showReceivedList, setShowReceivedList] = useState(false)
+  const [showShareList, setShowShareList] = useState(false)
+  const {
+    connectionState,
+    error,
+    joinRoom,
+    members,
+    messages,
+    sending,
+    shouldShowJoin,
+    submitMessage,
+    subscribed,
+    subscriptionState
+  } = useShareRealtime()
+  const peerState = useSharePeer(!shouldShowJoin, items => {
+    setReceivedItems(currentItems => [...items, ...currentItems])
+    setShowReceivedList(true)
+  })
 
-  const subscribed = subscriptionState === 'subscribed'
-  const shouldShowJoin = connectionState === 'initialized'
-  const realtimeStatus = getRealtimeStatus(connectionState, subscriptionState)
+  const transferProgress =
+    peerState.outgoingTransfer || peerState.incomingProgress
 
-  useEffect(() => {
-    if (shouldShowJoin) {
-      return
-    }
-
-    try {
-      const removeConnectionListener =
-        listenToPusherConnection(setConnectionState)
-      const removeSubscriptionListener =
-        listenToPusherSubscription(setSubscriptionState)
-      const removeMembersListener = listenToPusherMembers(setMembers)
-      const removeMessageListener = listenToPusherMessages(message => {
-        setMessages(currentMessages => {
-          if (currentMessages.some(item => item.id === message.id)) {
-            return currentMessages
-          }
-
-          return [message, ...currentMessages].slice(0, 20)
-        })
-      })
-
-      return () => {
-        removeConnectionListener()
-        removeSubscriptionListener()
-        removeMembersListener()
-        removeMessageListener()
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '实时通道连接失败')
-    }
-  }, [shouldShowJoin])
-
-  const handleJoin = () => {
-    setConnectionState('initialized')
-    setSubscriptionState('pending')
+  function handleJoin() {
     setInput('')
-    setMessages([])
-    setMembers([])
     setShowMembers(false)
-    setError('')
-    setConnectionState('connecting')
+    setShowMessages(true)
+    setShowReceivedList(false)
+    setShowShareList(false)
+    joinRoom()
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const text = input.trim()
+    const sent = await submitMessage(input)
 
-    if (!text) {
-      setError('请输入消息')
-      return
-    }
-
-    setError('')
-    setSending(true)
-
-    try {
-      await sendPusherMessage({ text })
+    if (sent) {
       setInput('')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '发送失败')
-    } finally {
-      setSending(false)
     }
+  }
+
+  function handleSendTransfer(member: Share.PusherMember) {
+    peerState.sendTransfer(member, shareItems)
+  }
+
+  function handleTransferResponse(accepted: boolean) {
+    if (accepted) {
+      setShowMembers(true)
+      setShowShareList(true)
+    }
+
+    peerState.respondToTransfer(accepted)
   }
 
   return (
@@ -127,127 +108,116 @@ export function SharePage() {
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2">
-              <ColorButton
-                type="blue"
-                onClick={() => setShowMembers(value => !value)}
-                className="h-9 w-auto px-3"
-              >
-                <UsersRound className="size-3.5" />
-              </ColorButton>
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#44803F]/15 bg-[#44803F]/8 px-2.5 py-1 text-xs font-normal text-[#44803F] dark:border-emerald-400/15 dark:bg-emerald-400/10 dark:text-emerald-300">
+                  <span className="shrink-0 text-[#44803F]/70 dark:text-emerald-300/70">
+                    (You)
+                  </span>
+                  <span className="min-w-0 truncate">{senderName}</span>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <ColorButton
+                  type="yellow2"
+                  gray={!showMembers}
+                  onClick={() => setShowMembers(value => !value)}
+                  className="h-9 w-auto px-3"
+                  aria-label="在线成员"
+                >
+                  <UsersRound className="size-3.5" />
+                </ColorButton>
+                <ColorButton
+                  type="green2"
+                  gray={!showShareList}
+                  onClick={() => setShowShareList(value => !value)}
+                  className="h-9 w-auto px-3"
+                  aria-label="文件列表"
+                >
+                  <FileSpreadsheet className="size-3.5" />
+                </ColorButton>
+                <ColorButton
+                  type="blue2"
+                  gray={!showReceivedList}
+                  onClick={() => setShowReceivedList(value => !value)}
+                  className="h-9 w-auto px-3"
+                  aria-label="接收文件"
+                >
+                  <FolderDown className="size-3.5" />
+                </ColorButton>
+                <ColorButton
+                  type="purple2"
+                  gray={!showMessages}
+                  onClick={() => setShowMessages(value => !value)}
+                  className="h-9 w-auto px-3"
+                  aria-label="消息"
+                >
+                  <MessageCircleMore className="size-3.5" />
+                </ColorButton>
+              </div>
             </div>
 
             {showMembers ? (
-              <div className="rounded-lg border border-zinc-200/70 bg-white p-3 dark:border-zinc-700/60 dark:bg-zinc-900/50">
-                {members.length ? (
-                  <div className="space-y-2">
-                    {members.map(member => (
-                      <div
-                        key={member.id}
-                        className="flex items-center justify-between gap-3 rounded-md bg-zinc-50 px-2.5 py-2 dark:bg-zinc-800/60"
-                      >
-                        <span className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                          {member.name}
-                        </span>
-                        <span className="shrink-0 font-mono text-[11px] text-zinc-400">
-                          {member.id.slice(0, 8)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="py-4 text-center text-sm text-zinc-400 dark:text-zinc-500">
-                    暂无在线成员
-                  </p>
-                )}
-              </div>
-            ) : null}
-
-            <div className="rounded-xl border border-zinc-200/70 bg-zinc-50/60 p-4 dark:border-zinc-700/60 dark:bg-zinc-900/30">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-2">
-                  <span
-                    className={cn(
-                      'inline-flex size-8 shrink-0 items-center justify-center rounded-full',
-                      getRealtimeStatusClassName(realtimeStatus)
-                    )}
-                  >
-                    {realtimeStatus === 'ready' ? (
-                      <Wifi className="size-4" />
-                    ) : realtimeStatus === 'error' ? (
-                      <CircleAlert className="size-4" />
-                    ) : (
-                      <LoaderCircle className="size-4 animate-spin" />
-                    )}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                      {getSubscriptionStateText(
-                        connectionState,
-                        subscriptionState
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <form
-                className="mt-4 space-y-3"
-                onSubmit={e => void handleSubmit(e)}
-              >
-                <Textarea
-                  className="min-h-24 resize-none text-[13px] leading-relaxed"
-                  placeholder="输入消息"
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                />
-                <Button
-                  type="submit"
-                  className="h-10 w-full bg-[#44803F] text-white hover:bg-[#44803F]/90"
-                  disabled={sending || !subscribed}
-                >
-                  {sending ? (
-                    <LoaderCircle className="size-4 animate-spin" />
-                  ) : (
-                    <Send className="size-4" />
+              <div className="relative">
+                <div
+                  className={cn(
+                    transferProgress
+                      ? 'pointer-events-none opacity-50 transition-opacity'
+                      : 'transition-opacity'
                   )}
-                  发送
-                </Button>
-              </form>
+                >
+                  <MemberList
+                    currentPeerId={peerState.peerId}
+                    hasShareItems={
+                      shareItems.length > 0 &&
+                      peerState.state === 'connected' &&
+                      !transferProgress
+                    }
+                    members={members}
+                    onSend={handleSendTransfer}
+                  />
+                </div>
+                {transferProgress ? (
+                  <TransferProgressOverlay
+                    onCancel={peerState.cancelTransfer}
+                    onDone={peerState.clearTransferProgress}
+                    progress={transferProgress}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+            <div className={showShareList ? undefined : 'hidden'}>
+              <ShareListPanel
+                items={shareItems}
+                onPeerReconnect={peerState.reconnect}
+                peerError={peerState.error}
+                peerState={peerState.state}
+                setItems={setShareItems}
+              />
             </div>
-
-            {error ? (
-              <p className="rounded-lg border border-red-200/70 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
-                {error}
-              </p>
+            {showReceivedList ? (
+              <ReceivedListPanel items={receivedItems} />
             ) : null}
 
-            <div className="space-y-2" aria-live="polite">
-              {messages.length ? (
-                messages.map(message => (
-                  <article
-                    key={message.id}
-                    className="rounded-lg border border-zinc-200/70 bg-white px-3.5 py-3 dark:border-zinc-700/60 dark:bg-zinc-900/50"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                        <MessageCircle className="size-3.5 shrink-0" />
-                        <span className="truncate">{message.senderId}</span>
-                      </span>
-                      <time className="shrink-0 text-xs text-zinc-400">
-                        {formatMessageTime(message.createdAt)}
-                      </time>
-                    </div>
-                    <p className="mt-2 text-sm leading-relaxed break-words text-zinc-800 dark:text-zinc-100">
-                      {message.text}
-                    </p>
-                  </article>
-                ))
-              ) : (
-                <div className="rounded-lg border border-dashed border-zinc-200 px-4 py-8 text-center text-sm text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
-                  暂无消息
-                </div>
-              )}
-            </div>
+            {showMessages ? (
+              <MessagePanel
+                connectionState={connectionState}
+                currentSenderId={senderId}
+                error={error}
+                input={input}
+                members={members}
+                messages={messages}
+                onInputChange={setInput}
+                onSubmit={handleSubmit}
+                sending={sending}
+                subscribed={subscribed}
+                subscriptionState={subscriptionState}
+              />
+            ) : null}
+            <TransferRequestDialog
+              request={peerState.incomingTransfer}
+              onRespond={handleTransferResponse}
+            />
           </>
         )}
       </section>
@@ -255,64 +225,187 @@ export function SharePage() {
   )
 }
 
-function getSubscriptionStateText(
-  connectionState: PusherConnectionState,
-  subscriptionState: PusherSubscriptionState
-) {
-  const socketText =
-    connectionState === 'connected' ? 'Socket connected' : 'Socket pending'
+function TransferProgressOverlay({
+  onCancel,
+  onDone,
+  progress
+}: {
+  onCancel: (transferId: string) => void
+  onDone: () => void
+  progress: Share.TransferProgress
+}) {
+  const canCancelTransfer =
+    progress.direction === 'outgoing' &&
+    !isTerminalTransferStatus(progress.status)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const shouldShowAction =
+    canCancelTransfer || isTerminalTransferStatus(progress.status)
+  const shouldConfirmAction =
+    progress.status !== 'completed' && progress.status !== 'cancelled'
+  const progressValue =
+    progress.itemCount > 0
+      ? Math.round((progress.processedCount / progress.itemCount) * 100)
+      : 0
+  const actionButton = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-xs"
+      className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+      onClick={shouldConfirmAction ? undefined : handleProgressAction}
+      aria-label={canCancelTransfer ? '取消传输' : '关闭传输提示'}
+    >
+      <X className="size-3.5" />
+    </Button>
+  )
 
-  if (connectionState === 'failed' || connectionState === 'unavailable') {
-    return `${socketText} · Channel unavailable`
+  function handleProgressAction() {
+    if (canCancelTransfer) {
+      onCancel(progress.transferId)
+      return
+    }
+
+    onDone()
   }
 
-  switch (subscriptionState) {
-    case 'subscribed':
-      return `${socketText} · Channel ready`
-    case 'error':
-      return `${socketText} · Channel auth failed`
-    default:
-      return `${socketText} · Channel pending`
-  }
+  return (
+    <div className="absolute inset-0 flex items-center justify-center rounded-lg border border-zinc-200/70 bg-white/65 p-4 backdrop-blur-[1px] dark:border-zinc-700/60 dark:bg-zinc-900/70">
+      {shouldShowAction && shouldConfirmAction ? (
+        <ConfirmPopover
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onConfirm={() => {
+            setConfirmOpen(false)
+            handleProgressAction()
+          }}
+          trigger={actionButton}
+        />
+      ) : shouldShowAction ? (
+        actionButton
+      ) : null}
+      <div className="w-full max-w-xs space-y-2 text-center">
+        <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+          {getTransferProgressText(progress)}
+        </p>
+        <div className="h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+          <div
+            className="h-full rounded-full bg-[#44803F] transition-all"
+            style={{ width: `${progressValue}%` }}
+          />
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          {progress.processedCount}/{progress.itemCount}
+        </p>
+        {getTransferProgressHint(progress) ? (
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            {getTransferProgressHint(progress)}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  )
 }
 
-function getRealtimeStatus(
-  connectionState: PusherConnectionState,
-  subscriptionState: PusherSubscriptionState
-) {
-  if (
-    connectionState === 'failed' ||
-    connectionState === 'unavailable' ||
-    subscriptionState === 'error'
-  ) {
-    return 'error'
-  }
-
-  if (connectionState === 'connected' && subscriptionState === 'subscribed') {
-    return 'ready'
-  }
-
-  return 'pending'
+function isTerminalTransferStatus(status: Share.TransferProgress['status']) {
+  return (
+    status === 'completed' ||
+    status === 'cancelled' ||
+    status === 'declined' ||
+    status === 'error'
+  )
 }
 
-function getRealtimeStatusClassName(
-  state: ReturnType<typeof getRealtimeStatus>
-) {
-  if (state === 'ready') {
-    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+function getTransferProgressText(progress: Share.TransferProgress) {
+  if (progress.direction === 'incoming') {
+    if (progress.status === 'cancelled') {
+      return `${progress.peerName} 已取消传输`
+    }
+
+    if (progress.status === 'completed') {
+      return `已接收 ${progress.peerName} 的 ${progress.itemCount} 个文件`
+    }
+
+    return `正在接收 ${progress.peerName} 的 ${progress.itemCount} 个文件`
   }
 
-  if (state === 'error') {
-    return 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
+  if (progress.status === 'waiting') {
+    return `正在等待 ${progress.peerName} 接受 ${progress.itemCount} 个文件`
   }
 
-  return 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
+  if (progress.status === 'declined') {
+    return `${progress.peerName} 已拒绝接收`
+  }
+
+  if (progress.status === 'cancelled') {
+    return `已取消发送给 ${progress.peerName}`
+  }
+
+  if (progress.status === 'completed') {
+    return `已发送给 ${progress.peerName} ${progress.itemCount} 个文件`
+  }
+
+  if (progress.status === 'error') {
+    return `发送给 ${progress.peerName} 失败`
+  }
+
+  return `正在发送给 ${progress.peerName} ${progress.itemCount} 个文件`
 }
 
-function formatMessageTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  }).format(new Date(value))
+function getTransferProgressHint(progress: Share.TransferProgress) {
+  if (progress.status === 'cancelled') {
+    return progress.direction === 'incoming'
+      ? '本次传输未完成，未接收的文件不会继续下载'
+      : '本次传输已停止，未发送的文件不会继续发送'
+  }
+
+  if (progress.status === 'declined') {
+    return '本次传输未开始'
+  }
+
+  if (progress.status === 'error') {
+    return '本次传输未完成，可以稍后重试'
+  }
+
+  return ''
+}
+
+function TransferRequestDialog({
+  onRespond,
+  request
+}: {
+  onRespond: (accepted: boolean) => void
+  request: Share.IncomingTransferRequest | null
+}) {
+  return (
+    <Dialog
+      open={Boolean(request)}
+      onOpenChange={open => !open && onRespond(false)}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>文件传输</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+          是否接受 {request?.senderName ?? ''} 发送的 {request?.itemCount ?? 0}{' '}
+          个文件？
+        </p>
+        <DialogFooter className="gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onRespond(false)}
+          >
+            拒绝
+          </Button>
+          <Button
+            type="button"
+            className="bg-[#44803F] text-white hover:bg-[#44803F]/90"
+            onClick={() => onRespond(true)}
+          >
+            接受
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 }

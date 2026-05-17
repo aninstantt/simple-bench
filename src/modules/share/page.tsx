@@ -241,7 +241,9 @@ function TransferProgressOverlay({
   const shouldShowAction =
     canCancelTransfer || isTerminalTransferStatus(progress.status)
   const shouldConfirmAction =
-    progress.status !== 'completed' && progress.status !== 'cancelled'
+    progress.status !== 'completed' &&
+    progress.status !== 'cancelled' &&
+    progress.status !== 'declined'
   const progressValue =
     progress.itemCount > 0
       ? Math.round((progress.processedCount / progress.itemCount) * 100)

@@ -7,7 +7,7 @@ const STORAGE_KEY_DOCK_MENU_ITEMS = 'user-config:dock-menu-items'
 const STORAGE_KEY_HOME_COPY = 'user-config:home-copy'
 
 export const DEFAULT_HOME_COPY =
-  '这是一个支持离线使用的工具箱，更多功能开发中。'
+  '一个轻量的工具箱 🎐，适配移动端与电脑端 🍃，可以离线使用 ✨'
 
 export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
   { key: 'home', visible: true },

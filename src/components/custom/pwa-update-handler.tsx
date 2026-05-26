@@ -34,7 +34,10 @@ export async function checkForUpdate() {
 
 export function PwaUpdateHandler() {
   const handleControllerChange = useCallback(() => {
-    toast.success('App update complete', { duration: 3000 })
+    toast.success('App update complete', { duration: 1500 })
+    setTimeout(() => {
+      window.location.reload()
+    }, 1500)
   }, [])
 
   useEffect(() => {

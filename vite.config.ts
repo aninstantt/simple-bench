@@ -9,6 +9,8 @@ import { fileURLToPath } from 'node:url'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig, loadEnv, type PluginOption } from 'vite-plus'
 
+import pkg from './package.json' with { type: 'json' }
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const devEnv = loadEnv('development', __dirname, '')
 const apiProxyTarget =
@@ -77,6 +79,9 @@ const localApiServerPlugin: PluginOption = {
 }
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version)
+  },
   server: {
     proxy: {
       '/api': {

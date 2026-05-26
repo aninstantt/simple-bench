@@ -41,13 +41,6 @@ export function normalizeDockMenuItems(
     nextItems.push({ ...defaultItem })
   }
 
-  if (!nextItems.some(item => item.visible)) {
-    return nextItems.map((item, index) => ({
-      ...item,
-      visible: index === 0
-    }))
-  }
-
   return nextItems
 }
 

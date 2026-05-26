@@ -1,25 +1,43 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useAtom } from 'jotai/react'
 import {
+  BookText,
   Check,
   ArrowDown,
   ArrowUp,
   CircleOff,
   Contrast,
   FileText,
+  Home,
   Layers,
   List,
+  ListTodo,
+  Lock,
   Moon,
   PenSquare,
   PartyPopper,
+  Radio,
+  RefreshCw,
   RotateCcw,
   Settings,
   Stars,
-  Sun
+  Sun,
+  Tag
 } from 'lucide-react'
 import { useLayoutEffect, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/animate-ui/components/radix/dropdown-menu'
 import { CogIcon } from '@/components/animated-icons/cog'
+import { MenuIcon } from '@/components/animated-icons/menu'
+import { checkForUpdate } from '@/components/custom/pwa-update-handler'
 import AnimatedTextGradientMotion from '@/components/shadcn-space/animated-text/animated-text-02'
 import {
   Dialog,
@@ -70,6 +88,7 @@ export function PageHeader({
   description,
   className
 }: PageHeaderProps) {
+  const navigate = useNavigate()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [homeCopyDialogOpen, setHomeCopyDialogOpen] = useState(false)
   const [dockMenuDialogOpen, setDockMenuDialogOpen] = useState(false)
@@ -98,6 +117,57 @@ export function PageHeader({
             <AnimatedTextGradientMotion text={title} />
           </div>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="size-9 shrink-0 rounded-full p-0 focus-visible:ring-0 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+              aria-label="Menu"
+            >
+              <MenuIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={8}>
+            <DropdownMenuLabel className="text-xs">导航</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-xs"
+              onSelect={() => navigate({ to: '/' })}
+            >
+              <Home className="size-3.5" />
+              主页
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs"
+              onSelect={() => navigate({ to: '/aes' })}
+            >
+              <Lock className="size-3.5" />
+              加解密
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs"
+              onSelect={() => navigate({ to: '/share' })}
+            >
+              <Radio className="size-3.5" />
+              互传
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs"
+              onSelect={() => navigate({ to: '/todo' })}
+            >
+              <ListTodo className="size-3.5" />
+              待办
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs"
+              onSelect={() => navigate({ to: '/note' })}
+            >
+              <BookText className="size-3.5" />
+              笔记
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           type="button"
           variant="outline"
@@ -281,7 +351,7 @@ export function PageHeader({
                       type="button"
                       className="min-w-0 rounded-md text-left font-medium underline decoration-zinc-400/0 underline-offset-2 transition-colors hover:text-zinc-900 hover:decoration-zinc-400/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 dark:hover:text-zinc-50 dark:focus-visible:outline-zinc-500"
                     >
-                      菜单项
+                      导航栏
                     </button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -291,7 +361,7 @@ export function PageHeader({
                   >
                     <PopoverHeader>
                       <PopoverDescription className="text-[12px]">
-                        支持勾选显示项并调整菜单顺序。
+                        支持勾选显示项并调整顺序。
                       </PopoverDescription>
                     </PopoverHeader>
                   </PopoverContent>
@@ -302,7 +372,7 @@ export function PageHeader({
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0"
-                aria-label="编辑菜单项"
+                aria-label="编辑导航栏"
                 onClick={() => {
                   setDockMenuDraft(normalizeDockMenuItems(dockMenuItems))
                   setDockMenuDialogOpen(true)
@@ -310,6 +380,48 @@ export function PageHeader({
               >
                 <PenSquare className="size-3.5" />
               </Button>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white px-3 py-1 dark:border-zinc-600 dark:bg-zinc-950/20">
+              <div className="flex min-w-0 items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                <Tag className="size-4 shrink-0 text-zinc-500 dark:text-zinc-300" />
+                <Popover modal>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="min-w-0 rounded-md text-left font-medium underline decoration-zinc-400/0 underline-offset-2 transition-colors hover:text-zinc-900 hover:decoration-zinc-400/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 dark:hover:text-zinc-50 dark:focus-visible:outline-zinc-500"
+                    >
+                      版本
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    side="bottom"
+                    align="start"
+                    className="w-64 border-zinc-200 bg-white text-zinc-700 shadow-lg dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-200"
+                  >
+                    <PopoverHeader>
+                      <PopoverDescription className="text-[12px]">
+                        当前应用版本号，点击右侧按钮可以手动更新。
+                      </PopoverDescription>
+                    </PopoverHeader>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  v{__APP_VERSION__}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  aria-label="检查更新"
+                  onClick={checkForUpdate}
+                >
+                  <RefreshCw className="size-3.5" />
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -370,7 +482,7 @@ export function PageHeader({
       <Dialog open={dockMenuDialogOpen} onOpenChange={setDockMenuDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-sm">菜单项设置</DialogTitle>
+            <DialogTitle className="text-sm">导航栏设置</DialogTitle>
             <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
               勾选控制显示，使用上下箭头调整顺序。
             </DialogDescription>
@@ -382,7 +494,7 @@ export function PageHeader({
                 const visibleCount = dockMenuDraft.filter(
                   item => item.visible
                 ).length
-                const disableUncheck = menuItem.visible && visibleCount === 1
+                const disableCheck = !menuItem.visible && visibleCount >= 5
                 return (
                   <div
                     key={menuItem.key}
@@ -392,7 +504,7 @@ export function PageHeader({
                       <input
                         type="checkbox"
                         checked={menuItem.visible}
-                        disabled={disableUncheck}
+                        disabled={disableCheck}
                         onChange={e => {
                           const checked = e.target.checked
                           setDockMenuDraft(prev =>
@@ -460,7 +572,7 @@ export function PageHeader({
                 variant="outline"
                 size="sm"
                 className="h-8 w-8 border-zinc-200 p-0 dark:border-zinc-600"
-                aria-label="恢复默认菜单项"
+                aria-label="恢复默认导航栏"
                 onClick={() =>
                   setDockMenuDraft(
                     DEFAULT_DOCK_MENU_ITEMS.map(item => ({ ...item }))
@@ -473,7 +585,7 @@ export function PageHeader({
                 type="button"
                 size="sm"
                 className="h-8 w-8 p-0"
-                aria-label="保存菜单项"
+                aria-label="保存导航栏"
                 onClick={() => {
                   setDockMenuItems(normalizeDockMenuItems(dockMenuDraft))
                   setDockMenuDialogOpen(false)

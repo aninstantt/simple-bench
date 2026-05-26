@@ -6,6 +6,21 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Suspense, lazy } from 'react'
 
+import { FolderLockIcon } from '@/components/animated-icons/aes'
+import { BookTextIcon } from '@/components/animated-icons/book-text'
+import { HomeIcon } from '@/components/animated-icons/home'
+import { RadioIcon } from '@/components/animated-icons/radio'
+import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
+import { PwaUpdateHandler } from '@/components/custom/pwa-update-handler'
+import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock'
+import { Toaster } from '@/components/ui/sonner'
+import {
+  backgroundAtom,
+  dockMenuItemsAtom,
+  dockVisibleAtom,
+  normalizeDockMenuItems
+} from '@/states/user-config'
+
 const GravityStarsBackground = lazy(() =>
   import('@/components/animate-ui/components/backgrounds/gravity-stars').then(
     m => ({
@@ -20,19 +35,6 @@ const FireworksBackground = lazy(() =>
     })
   )
 )
-import { FolderLockIcon } from '@/components/animated-icons/aes'
-import { BookTextIcon } from '@/components/animated-icons/book-text'
-import { HomeIcon } from '@/components/animated-icons/home'
-import { RadioIcon } from '@/components/animated-icons/radio'
-import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
-import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock'
-import { Toaster } from '@/components/ui/sonner'
-import {
-  backgroundAtom,
-  dockMenuItemsAtom,
-  dockVisibleAtom,
-  normalizeDockMenuItems
-} from '@/states/user-config'
 
 const dockAnimatedIconClass = 'size-full [&_svg]:h-full [&_svg]:w-full'
 const dockIconSize = 32
@@ -99,6 +101,8 @@ export function RootLayout() {
     .filter(item => item.visible)
     .map(item => navItemsByKey[item.key])
 
+  const hasNavItems = navItems.length > 0
+
   return (
     <div
       className="relative flex flex-1 flex-col bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-zinc-100/50 via-transparent to-transparent  text-left dark:from-zinc-600/20"
@@ -126,52 +130,59 @@ export function RootLayout() {
 
       <div className="fixed bottom-0 left-1/2 z-50 max-w-full -translate-x-1/2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <AnimatePresence mode="wait">
-          {dockVisible ? (
-            <motion.div
-              key="dock"
-              initial={{ y: 80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 80, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-            >
-              <Dock className="items-end pb-3" magnification={50} distance={50}>
-                {navItems.map(item => (
+          {hasNavItems ? (
+            dockVisible ? (
+              <motion.div
+                key="dock"
+                initial={{ y: 80, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 80, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+              >
+                <Dock
+                  className="items-end pb-3"
+                  magnification={50}
+                  distance={50}
+                >
+                  {navItems.map(item => (
+                    <DockItem
+                      key={item.key}
+                      onClick={item.onClick}
+                      className={itemClass}
+                    >
+                      <DockIcon>{item.icon}</DockIcon>
+                      <DockLabel>{item.label}</DockLabel>
+                    </DockItem>
+                  ))}
+
                   <DockItem
-                    key={item.key}
-                    onClick={item.onClick}
+                    onClick={() => setDockVisible(false)}
                     className={itemClass}
                   >
-                    <DockIcon>{item.icon}</DockIcon>
-                    <DockLabel>{item.label}</DockLabel>
+                    <DockIcon>
+                      <ChevronDown className="size-full text-zinc-400 dark:text-zinc-600" />
+                    </DockIcon>
                   </DockItem>
-                ))}
-
-                <DockItem
-                  onClick={() => setDockVisible(false)}
-                  className={itemClass}
-                >
-                  <DockIcon>
-                    <ChevronDown className="size-full text-zinc-400 dark:text-zinc-600" />
-                  </DockIcon>
-                </DockItem>
-              </Dock>
-            </motion.div>
-          ) : (
-            <motion.button
-              key="toggle"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-              onClick={() => setDockVisible(true)}
-              className="mx-auto flex items-center justify-center rounded-full bg-gray-50 p-2 shadow-sm transition-colors hover:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800"
-            >
-              <ChevronUp className="size-4 text-zinc-600 dark:text-zinc-400" />
-            </motion.button>
-          )}
+                </Dock>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="toggle"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 20, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                onClick={() => setDockVisible(true)}
+                className="mx-auto flex items-center justify-center rounded-full bg-gray-50 p-2 shadow-sm transition-colors hover:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+              >
+                <ChevronUp className="size-4 text-zinc-600 dark:text-zinc-400" />
+              </motion.button>
+            )
+          ) : null}
         </AnimatePresence>
       </div>
 
+      <PwaUpdateHandler />
       <Toaster />
     </div>
   )

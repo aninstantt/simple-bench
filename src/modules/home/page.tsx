@@ -2,7 +2,6 @@ import { useAtomValue } from 'jotai/react'
 import { Home } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import { Button } from '@/components/animate-ui/components/buttons/button'
 import { GithubIcon } from '@/components/animated-icons/github'
 import { MapPinHouseIcon } from '@/components/animated-icons/map-pin-house'
 import { WrenchIcon } from '@/components/animated-icons/wrench'
@@ -15,16 +14,9 @@ const VITE_PLUS_URL = 'https://viteplus.dev/'
 const GITHUB_URL = 'https://github.com/aninstantt/simple-bench'
 const PERSONAL_HOME_URL = 'https://goyave.space'
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
-}
-
 export function HomePage() {
   const homeCopy = useAtomValue(homeCopyAtom)
   const [showPoweredBy, setShowPoweredBy] = useState(false)
-  const [installPrompt, setInstallPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null)
 
   useEffect(() => {
     const typingDurationMs = homeCopy.length * 20 + 200
@@ -32,24 +24,6 @@ export function HomePage() {
     const timer = setTimeout(() => setShowPoweredBy(true), typingDurationMs)
     return () => clearTimeout(timer)
   }, [homeCopy])
-
-  useEffect(() => {
-    const onBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault()
-      setInstallPrompt(event as BeforeInstallPromptEvent)
-    }
-
-    const onAppInstalled = () => {
-      setInstallPrompt(null)
-    }
-
-    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
-    window.addEventListener('appinstalled', onAppInstalled)
-    return () => {
-      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
-      window.removeEventListener('appinstalled', onAppInstalled)
-    }
-  }, [])
 
   return (
     <WithLoading loading={false}>
@@ -64,30 +38,6 @@ export function HomePage() {
               loop={false}
               className="text-sm leading-6 text-zinc-700 dark:text-zinc-100"
             />
-            <div
-              className={`text-sm transition-opacity duration-500 ${showPoweredBy ? 'opacity-100' : 'opacity-0'}`}
-            >
-              {installPrompt ? (
-                <>
-                  点击{' '}
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="p-1"
-                    onClick={async () => {
-                      const prompt = installPrompt
-                      if (!prompt) return
-                      await prompt.prompt()
-                      await prompt.userChoice
-                      setInstallPrompt(null)
-                    }}
-                  >
-                    安装
-                  </Button>{' '}
-                  添加到桌面
-                </>
-              ) : null}
-            </div>
           </div>
           <div
             className={`mt-4 flex w-full flex-col items-end gap-2 text-xs text-zinc-400 transition-opacity duration-500 ${showPoweredBy ? 'opacity-100' : 'opacity-0'}`}

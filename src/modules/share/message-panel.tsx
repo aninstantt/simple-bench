@@ -79,7 +79,7 @@ export function MessagePanel({
 
       <form className="space-y-3" onSubmit={onSubmit}>
         <Textarea
-          className="min-h-24 resize-none text-[13px] leading-relaxed"
+          className="max-h-40 min-h-24 resize-none overflow-y-auto text-[13px] leading-relaxed"
           placeholder="输入消息"
           value={input}
           onChange={event => onInputChange(event.target.value)}

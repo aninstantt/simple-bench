@@ -1,3 +1,4 @@
+import { useAtom } from 'jotai/react'
 import {
   DoorOpen,
   FileSpreadsheet,
@@ -23,6 +24,15 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
+import {
+  shareInputAtom,
+  shareReceivedItemsAtom,
+  shareItemsAtom,
+  shareShowMembersAtom,
+  shareShowMessagesAtom,
+  shareShowReceivedListAtom,
+  shareShowShareListAtom
+} from '@/states/share'
 
 import { getDefaultSenderId, getDefaultSenderName } from './identity'
 import { MemberList } from './member-list'
@@ -33,15 +43,17 @@ import { useSharePeer } from './use-share-peer'
 import { useShareRealtime } from './use-share-realtime'
 
 export function SharePage() {
-  const [input, setInput] = useState('')
-  const [receivedItems, setReceivedItems] = useState<Share.ListItem[]>([])
+  const [input, setInput] = useAtom(shareInputAtom)
+  const [receivedItems, setReceivedItems] = useAtom(shareReceivedItemsAtom)
+  const [shareItems, setShareItems] = useAtom(shareItemsAtom)
+  const [showMembers, setShowMembers] = useAtom(shareShowMembersAtom)
+  const [showMessages, setShowMessages] = useAtom(shareShowMessagesAtom)
+  const [showReceivedList, setShowReceivedList] = useAtom(
+    shareShowReceivedListAtom
+  )
+  const [showShareList, setShowShareList] = useAtom(shareShowShareListAtom)
   const [senderId] = useState(() => getDefaultSenderId())
   const [senderName] = useState(() => getDefaultSenderName())
-  const [shareItems, setShareItems] = useState<Share.ListItem[]>([])
-  const [showMembers, setShowMembers] = useState(false)
-  const [showMessages, setShowMessages] = useState(true)
-  const [showReceivedList, setShowReceivedList] = useState(false)
-  const [showShareList, setShowShareList] = useState(false)
   const {
     connectionState,
     error,
@@ -347,7 +359,7 @@ function getTransferProgressText(progress: Share.TransferProgress) {
   }
 
   if (progress.status === 'error') {
-    return `发送给 ${progress.peerName} 失败`
+    return `传输错误：无法连接到 ${progress.peerName}`
   }
 
   return `正在发送给 ${progress.peerName} ${progress.itemCount} 个文件`
@@ -365,7 +377,7 @@ function getTransferProgressHint(progress: Share.TransferProgress) {
   }
 
   if (progress.status === 'error') {
-    return '本次传输未完成，可以稍后重试'
+    return '可能因网络原因无法建立连接，请稍后重试'
   }
 
   return ''

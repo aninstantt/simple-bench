@@ -85,7 +85,7 @@ export function ReceivedListPanel({ items }: ReceivedListPanelProps) {
                       className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-xs font-normal text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
                     />
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-200">
+                  <p className="max-h-48 overflow-y-auto text-sm leading-relaxed whitespace-pre-wrap text-zinc-700 dark:text-zinc-200">
                     {item.text}
                   </p>
                 </div>

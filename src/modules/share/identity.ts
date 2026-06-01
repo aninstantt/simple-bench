@@ -37,8 +37,6 @@ function createDefaultSenderName(senderId: string) {
   const noun = getRandomFoodNoun()
   const suffix = Number.parseInt(senderId.slice(5, 8), 16).toString(36)
 
-  console.log({ suffix, senderId })
-
   return `${adjective}${noun}${suffix}`
 }
 

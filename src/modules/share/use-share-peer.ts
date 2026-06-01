@@ -190,12 +190,21 @@ export function useSharePeer(
       }
     }))
 
+    const connectionTimeout = setTimeout(() => {
+      if (cancelledTransfersRef.current.has(transferId)) return
+      connection.close()
+      transferConnectionsRef.current.delete(transferId)
+      setOutgoingTransferStatus(transferId, 'error')
+    }, 10_000)
+
     connection.on('error', () => {
+      clearTimeout(connectionTimeout)
       transferConnectionsRef.current.delete(transferId)
       setOutgoingTransferStatus(transferId, 'error')
     })
 
     connection.on('open', () => {
+      clearTimeout(connectionTimeout)
       if (cancelledTransfersRef.current.has(transferId)) {
         connection.close()
         return

@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useAtom } from 'jotai/react'
 import {
   BookText,
@@ -89,6 +89,7 @@ export function PageHeader({
   className
 }: PageHeaderProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [homeCopyDialogOpen, setHomeCopyDialogOpen] = useState(false)
   const [dockMenuDialogOpen, setDockMenuDialogOpen] = useState(false)
@@ -133,6 +134,7 @@ export function PageHeader({
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-xs"
+              disabled={location.pathname === '/'}
               onSelect={() => navigate({ to: '/' })}
             >
               <Home className="size-3.5" />
@@ -140,6 +142,7 @@ export function PageHeader({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-xs"
+              disabled={location.pathname === '/aes'}
               onSelect={() => navigate({ to: '/aes' })}
             >
               <Lock className="size-3.5" />
@@ -147,13 +150,7 @@ export function PageHeader({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-xs"
-              onSelect={() => navigate({ to: '/share' })}
-            >
-              <Radio className="size-3.5" />
-              互传
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
+              disabled={location.pathname === '/todo'}
               onSelect={() => navigate({ to: '/todo' })}
             >
               <ListTodo className="size-3.5" />
@@ -161,10 +158,19 @@ export function PageHeader({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-xs"
+              disabled={location.pathname === '/note'}
               onSelect={() => navigate({ to: '/note' })}
             >
               <BookText className="size-3.5" />
               笔记
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-xs"
+              disabled={location.pathname === '/share'}
+              onSelect={() => navigate({ to: '/share' })}
+            >
+              <Radio className="size-3.5" />
+              互传
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

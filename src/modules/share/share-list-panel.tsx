@@ -172,7 +172,7 @@ export function ShareListPanel({
             <DialogTitle>添加文本</DialogTitle>
           </DialogHeader>
           <Textarea
-            className="min-h-32 resize-none text-[13px] leading-relaxed"
+            className="max-h-48 min-h-32 resize-none overflow-y-auto text-[13px] leading-relaxed"
             placeholder="输入文本"
             value={textDraft}
             onChange={event => setTextDraft(event.target.value)}

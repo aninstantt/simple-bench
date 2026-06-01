@@ -1,4 +1,7 @@
+import { useAtom } from 'jotai/react'
 import { useEffect, useState } from 'react'
+
+import { shareMessagesAtom } from '@/states/share'
 
 import {
   getPusherConnectionState,
@@ -14,7 +17,7 @@ export function useShareRealtime() {
     useState<Share.PusherConnectionState>(() => getPusherConnectionState())
   const [subscriptionState, setSubscriptionState] =
     useState<Share.PusherSubscriptionState>('pending')
-  const [messages, setMessages] = useState<Share.PusherMessage[]>([])
+  const [messages, setMessages] = useAtom(shareMessagesAtom)
   const [members, setMembers] = useState<Share.PusherMember[]>([])
   const [error, setError] = useState('')
   const [sending, setSending] = useState(false)

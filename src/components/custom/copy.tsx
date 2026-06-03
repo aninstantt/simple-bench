@@ -22,8 +22,6 @@ export function CopyButton({
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<number | null>(null)
 
-  if (!normalizedText) return null
-
   useEffect(() => {
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current)
@@ -50,6 +48,8 @@ export function CopyButton({
       })
     }
   }, 1000)
+
+  if (!normalizedText) return null
 
   return (
     <button

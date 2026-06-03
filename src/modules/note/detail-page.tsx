@@ -37,6 +37,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ConfirmPopover } from '@/components/custom/confirm-popover'
+import { CopyButton } from '@/components/custom/copy'
 import { SavedText } from '@/components/custom/saved-text'
 import { SavingText } from '@/components/custom/saving-text'
 import { WithLoading } from '@/components/custom/with-loading'
@@ -492,6 +493,14 @@ export function NoteDetailPage() {
                   onClick={enterEdit}
                 >
                   <Pencil className="size-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-8 w-8 gap-1.5 text-xs"
+                  asChild
+                >
+                  <CopyButton text={markdown} iconClassName="size-3.5" />
                 </Button>
                 <Button
                   type="button"

@@ -121,7 +121,7 @@ export default defineConfig({
       },
       manifest: {
         name: 'Simple Bench',
-        short_name: 'simple-bench',
+        short_name: 'Simple Bench',
         description: 'No description for now',
         theme_color: '#646cff',
         icons: [

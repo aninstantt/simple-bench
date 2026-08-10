@@ -1,42 +1,29 @@
 'use client'
 
-import type { Variants } from 'motion/react'
-import type { HTMLAttributes, MouseEvent } from 'react'
+import type { HTMLAttributes } from 'react'
 
 import { motion, useAnimation } from 'motion/react'
 import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface FolderLockIconHandle {
+export interface LockIconHandle {
   startAnimation: () => void
   stopAnimation: () => void
 }
 
-interface FolderLockIconProps extends HTMLAttributes<HTMLDivElement> {
+interface LockIconProps extends HTMLAttributes<HTMLDivElement> {
   size?: number
 }
 
-const LOCK_VARIANTS: Variants = {
-  normal: { y: 0, rotate: 0 },
-  animate: {
-    y: [0, -1.6, 0],
-    rotate: [0, -3, 2, 0],
-    transition: {
-      duration: 0.7,
-      ease: 'easeInOut',
-      repeat: Number.POSITIVE_INFINITY
-    }
-  }
-}
-
-const FolderLockIcon = forwardRef<FolderLockIconHandle, FolderLockIconProps>(
+const LockIcon = forwardRef<LockIconHandle, LockIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
     const controls = useAnimation()
     const isControlledRef = useRef(false)
 
     useImperativeHandle(ref, () => {
       isControlledRef.current = true
+
       return {
         startAnimation: () => controls.start('animate'),
         stopAnimation: () => controls.start('normal')
@@ -44,9 +31,9 @@ const FolderLockIcon = forwardRef<FolderLockIconHandle, FolderLockIconProps>(
     })
 
     const handleMouseEnter = useCallback(
-      (event: MouseEvent<HTMLDivElement>) => {
+      (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseEnter?.(event)
+          onMouseEnter?.(e)
         } else {
           void controls.start('animate')
         }
@@ -55,9 +42,9 @@ const FolderLockIcon = forwardRef<FolderLockIconHandle, FolderLockIconProps>(
     )
 
     const handleMouseLeave = useCallback(
-      (event: MouseEvent<HTMLDivElement>) => {
+      (e: React.MouseEvent<HTMLDivElement>) => {
         if (isControlledRef.current) {
-          onMouseLeave?.(event)
+          onMouseLeave?.(e)
         } else {
           void controls.start('normal')
         }
@@ -72,33 +59,57 @@ const FolderLockIcon = forwardRef<FolderLockIconHandle, FolderLockIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <svg
+        <motion.svg
+          animate={controls}
           fill="none"
           height={size}
+          initial="normal"
           stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
+          transition={{
+            duration: 1,
+            ease: [0.4, 0, 0.2, 1]
+          }}
+          variants={{
+            normal: {
+              rotate: 0,
+              scale: 1
+            },
+            animate: {
+              rotate: [-3, 1, -2, 0],
+              scale: [0.95, 1.05, 0.98, 1]
+            }
+          }}
           viewBox="0 0 24 24"
           width={size}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M10 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v2.5" />
-          <motion.g
+          <rect height="11" rx="2" ry="2" width="18" x="3" y="11" />
+          <motion.path
             animate={controls}
+            d="M7 11V7a5 5 0 0 1 10 0v4"
             initial="normal"
-            style={{ transformOrigin: '18px 19px' }}
-            variants={LOCK_VARIANTS}
-          >
-            <rect height="5" rx="1" width="8" x="14" y="17" />
-            <path d="M20 17v-2a2 2 0 1 0-4 0v2" />
-          </motion.g>
-        </svg>
+            transition={{
+              duration: 0.3,
+              ease: [0.4, 0, 0.2, 1]
+            }}
+            variants={{
+              normal: {
+                pathLength: 1
+              },
+              animate: {
+                pathLength: 0.7
+              }
+            }}
+          />
+        </motion.svg>
       </div>
     )
   }
 )
 
-FolderLockIcon.displayName = 'FolderLockIcon'
+LockIcon.displayName = 'LockIcon'
 
-export { FolderLockIcon }
+export { LockIcon }

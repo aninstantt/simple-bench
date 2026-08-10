@@ -10,11 +10,12 @@ export const DEFAULT_HOME_COPY =
   '一个轻量的工具箱 🎐，适配移动端与电脑端 🍃，可以离线使用 ✨'
 
 export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
-  { key: 'home', visible: true },
-  { key: 'aes', visible: true },
+  { key: 'home', visible: false },
   { key: 'todo', visible: true },
   { key: 'note', visible: true },
-  { key: 'share', visible: true }
+  { key: 'routine', visible: true },
+  { key: 'aes', visible: false },
+  { key: 'share', visible: false }
 ]
 
 export function normalizeDockMenuItems(
@@ -46,7 +47,9 @@ export function normalizeDockMenuItems(
 
 export const themeAtom = atomWithStorage<State.UserConfig.Theme>(
   STORAGE_KEY_THEME,
-  'light'
+  'light',
+  undefined,
+  { getOnInit: true }
 )
 
 export const backgroundAtom = atomWithStorage<State.UserConfig.BackgroundMode>(

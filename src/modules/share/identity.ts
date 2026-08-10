@@ -1,7 +1,7 @@
 import { fakerZH_CN } from '@faker-js/faker'
 
-const SENDER_ID_STORAGE_KEY = 'simple-bench-pusher-sender-id'
-const SENDER_NAME_STORAGE_KEY = 'simple-bench-pusher-sender-name'
+const SENDER_ID_STORAGE_KEY = 'share:pusher-sender-id'
+const SENDER_NAME_STORAGE_KEY = 'share:pusher-sender-name'
 
 export function getDefaultSenderId() {
   const existingSenderId = window.localStorage.getItem(SENDER_ID_STORAGE_KEY)

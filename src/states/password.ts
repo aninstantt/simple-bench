@@ -12,5 +12,7 @@ export const DEFAULT_RANDOM_PASSWORD_OPTIONS: State.Password.RandomOptions = {
 export const randomPasswordOptionsAtom =
   atomWithStorage<State.Password.RandomOptions>(
     STORAGE_KEY_RANDOM_PASSWORD_OPTIONS,
-    DEFAULT_RANDOM_PASSWORD_OPTIONS
+    DEFAULT_RANDOM_PASSWORD_OPTIONS,
+    undefined,
+    { getOnInit: true }
   )

@@ -1,4 +1,4 @@
-# Easy Bench
+# Simple Bench
 
 基于 **Vite+** 的前端项目（统一用 `vp` 管理开发/构建/校验/测试）。
 

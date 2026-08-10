@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js'
 import { useAtom } from 'jotai/react'
 import {
-  ListTodo,
+  MessageCircleCheck,
   PlusIcon,
   Save,
   Trash2,
@@ -113,7 +113,10 @@ export function TodoPage() {
   return (
     <WithLoading loading={!hydrated}>
       <section className="mx-auto max-w-lg space-y-4">
-        <PageHeader icon={<ListTodo className="size-4 " />} title="待办" />
+        <PageHeader
+          icon={<MessageCircleCheck className="size-4 " />}
+          title="待办"
+        />
 
         <div className="flex gap-2">
           <ColorButton
@@ -195,7 +198,7 @@ export function TodoPage() {
               <div className="flex justify-end">
                 <ColorButton
                   onClick={handleConfirm}
-                  type="red"
+                  type="green"
                   disabled={!dialogLabel.trim()}
                 >
                   <Save />

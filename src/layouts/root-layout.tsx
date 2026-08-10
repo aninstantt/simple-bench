@@ -6,10 +6,11 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { Suspense, lazy } from 'react'
 
-import { FolderLockIcon } from '@/components/animated-icons/aes'
+import { LockIcon } from '@/components/animated-icons/aes'
 import { BookTextIcon } from '@/components/animated-icons/book-text'
 import { HomeIcon } from '@/components/animated-icons/home'
 import { RadioIcon } from '@/components/animated-icons/radio'
+import { CalendarDaysIcon } from '@/components/animated-icons/routine'
 import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
 import { PwaUpdateHandler } from '@/components/custom/pwa-update-handler'
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock'
@@ -66,9 +67,7 @@ export function RootLayout() {
       key: 'aes',
       label: '加解密',
       onClick: () => navigate({ to: '/aes' }),
-      icon: (
-        <FolderLockIcon className={dockAnimatedIconClass} size={dockIconSize} />
-      )
+      icon: <LockIcon className={dockAnimatedIconClass} size={dockIconSize} />
     },
     share: {
       key: 'share',
@@ -94,6 +93,17 @@ export function RootLayout() {
       icon: (
         <BookTextIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
+    },
+    routine: {
+      key: 'routine',
+      label: '日常',
+      onClick: () => navigate({ to: '/routine' }),
+      icon: (
+        <CalendarDaysIcon
+          className={dockAnimatedIconClass}
+          size={dockIconSize}
+        />
+      )
     }
   }
 
@@ -109,7 +119,7 @@ export function RootLayout() {
       style={{ minHeight: '100dvh' }}
     >
       <div
-        className="flex flex-1 flex-col rounded-2xl border-zinc-200/70 bg-white p-4 pb-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)] dark:border-zinc-600/60 dark:bg-zinc-900 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_8px_24px_rgba(0,0,0,0.15)]"
+        className={`flex flex-1 flex-col rounded-2xl border-zinc-200/70 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)] dark:border-zinc-600/60 dark:bg-zinc-900 dark:shadow-[0_1px_3px_rgba(0,0,0,0.2),0_8px_24px_rgba(0,0,0,0.15)] ${hasNavItems && dockVisible ? 'pb-20' : 'pb-6'}`}
         style={{ contain: 'layout paint' }}
       >
         <div className="fixed inset-0 -z-10">

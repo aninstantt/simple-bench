@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useAtom } from 'jotai/react'
 import {
   BookText,
+  CalendarDays,
   Check,
   ArrowDown,
   ArrowUp,
@@ -11,7 +12,7 @@ import {
   Home,
   Layers,
   List,
-  ListTodo,
+  MessageCircleCheck,
   Lock,
   Moon,
   PenSquare,
@@ -70,7 +71,8 @@ const dockMenuItemLabels: Record<State.UserConfig.DockMenuKey, string> = {
   aes: '加解密',
   share: '互传',
   todo: '待办',
-  note: '笔记'
+  note: '笔记',
+  routine: '日常'
 }
 
 export type PageHeaderProps = {
@@ -78,6 +80,7 @@ export type PageHeaderProps = {
   title: string
   description?: string
   className?: string
+  hideActions?: boolean
 }
 
 const MAX_HOME_COPY_LENGTH = 240
@@ -86,7 +89,8 @@ export function PageHeader({
   icon,
   title,
   description,
-  className
+  className,
+  hideActions
 }: PageHeaderProps) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -118,71 +122,83 @@ export function PageHeader({
             <AnimatedTextGradientMotion text={title} />
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        {!hideActions && (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="size-9 shrink-0 rounded-full p-0 focus-visible:ring-0 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
+                  aria-label="Menu"
+                >
+                  <MenuIcon className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={8}>
+                <DropdownMenuLabel className="text-xs">导航</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/'}
+                  onSelect={() => navigate({ to: '/' })}
+                >
+                  <Home className="size-3.5" />
+                  主页
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/todo'}
+                  onSelect={() => navigate({ to: '/todo' })}
+                >
+                  <MessageCircleCheck className="size-3.5" />
+                  待办
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/note'}
+                  onSelect={() => navigate({ to: '/note' })}
+                >
+                  <BookText className="size-3.5" />
+                  笔记
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/routine'}
+                  onSelect={() => navigate({ to: '/routine' })}
+                >
+                  <CalendarDays className="size-3.5" />
+                  日常
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/aes'}
+                  onSelect={() => navigate({ to: '/aes' })}
+                >
+                  <Lock className="size-3.5" />
+                  加解密
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/share'}
+                  onSelect={() => navigate({ to: '/share' })}
+                >
+                  <Radio className="size-3.5" />
+                  互传
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               type="button"
               variant="outline"
-              className="size-9 shrink-0 rounded-full p-0 focus-visible:ring-0 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
-              aria-label="Menu"
+              className="size-9 shrink-0 rounded-full p-0"
+              aria-label="Settings"
+              onClick={() => setSettingsOpen(true)}
             >
-              <MenuIcon className="size-4" />
+              <CogIcon className="size-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" sideOffset={8}>
-            <DropdownMenuLabel className="text-xs">导航</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-xs"
-              disabled={location.pathname === '/'}
-              onSelect={() => navigate({ to: '/' })}
-            >
-              <Home className="size-3.5" />
-              主页
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
-              disabled={location.pathname === '/aes'}
-              onSelect={() => navigate({ to: '/aes' })}
-            >
-              <Lock className="size-3.5" />
-              加解密
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
-              disabled={location.pathname === '/todo'}
-              onSelect={() => navigate({ to: '/todo' })}
-            >
-              <ListTodo className="size-3.5" />
-              待办
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
-              disabled={location.pathname === '/note'}
-              onSelect={() => navigate({ to: '/note' })}
-            >
-              <BookText className="size-3.5" />
-              笔记
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
-              disabled={location.pathname === '/share'}
-              onSelect={() => navigate({ to: '/share' })}
-            >
-              <Radio className="size-3.5" />
-              互传
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button
-          type="button"
-          variant="outline"
-          className="size-9 shrink-0 rounded-full p-0"
-          aria-label="Settings"
-          onClick={() => setSettingsOpen(true)}
-        >
-          <CogIcon className="size-4" />
-        </Button>
+          </>
+        )}
       </div>
       {description ? (
         <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">

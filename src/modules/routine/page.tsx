@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
-import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
+import { StrictConfirmPopover } from '@/components/custom/strict-confirm-popover'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
   Dialog,
@@ -103,9 +103,7 @@ export function RoutinePage() {
                     >
                       <Pencil className="size-3.5 text-zinc-400 dark:text-zinc-500" />
                     </Button>
-                    <ConfirmPopover
-                      side="bottom"
-                      align="end"
+                    <StrictConfirmPopover
                       onConfirm={() => {
                         if (routine.id != null) void handleDelete(routine.id)
                       }}

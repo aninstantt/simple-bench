@@ -43,7 +43,8 @@ export function CreateRoutinePage() {
       startDate,
       endDate,
       timesPerDay: Number(timesPerDay) || 1,
-      minIntervalSeconds: hoursToSeconds(intervalHours || '4')
+      minIntervalSeconds: hoursToSeconds(intervalHours || '4'),
+      desc: ''
     })
     void navigate({ to: '/routine' })
   }

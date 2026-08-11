@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
-import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
+import { StrictConfirmPopover } from '@/components/custom/strict-confirm-popover'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
   Dialog,
@@ -123,9 +123,7 @@ export function NotePage() {
                         {note.title}
                       </button>
 
-                      <ConfirmPopover
-                        side="left"
-                        align="center"
+                      <StrictConfirmPopover
                         open={deleteConfirmId === note.id}
                         onOpenChange={open =>
                           setDeleteConfirmId(open ? note.id : null)

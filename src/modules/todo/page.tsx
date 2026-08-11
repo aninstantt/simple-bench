@@ -140,8 +140,6 @@ export function TodoPage() {
             <PlusIcon className="size-4" />
           </ColorButton>
           <ConfirmPopover
-            side="bottom"
-            align="end"
             open={clearConfirmOpen}
             onOpenChange={open => setClearConfirmOpen(open)}
             onConfirm={() => {

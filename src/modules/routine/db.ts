@@ -1,7 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie'
 
 const DB_NAME = 'routine'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 const db = new Dexie(DB_NAME) as Dexie & {
   routines: EntityTable<Routine.TableRoutine, 'id'>
@@ -43,6 +43,13 @@ export async function updateRoutineName(
   name: string
 ): Promise<void> {
   await db.routines.update(id, { name })
+}
+
+export async function updateRoutineDesc(
+  id: number,
+  desc: string
+): Promise<void> {
+  await db.routines.update(id, { desc })
 }
 
 export async function loadCheckIns(

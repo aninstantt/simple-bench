@@ -33,8 +33,8 @@ export function ConfirmPopover({
   onConfirm,
   open,
   onOpenChange,
-  side = 'left',
-  align = 'center',
+  side = 'bottom',
+  align = 'end',
   popoverClassName
 }: ConfirmPopoverProps) {
   return (

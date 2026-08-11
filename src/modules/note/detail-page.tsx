@@ -478,8 +478,6 @@ export function NoteDetailPage() {
                   <ConfirmPopover
                     open={deleteConfirmOpen}
                     onOpenChange={setDeleteConfirmOpen}
-                    side="left"
-                    align="center"
                     onConfirm={() => void handleDelete()}
                     trigger={
                       <Button

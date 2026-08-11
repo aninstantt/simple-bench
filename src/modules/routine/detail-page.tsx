@@ -25,7 +25,8 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 
-import { addCheckIn, getRoutine, loadCheckIns } from './db'
+import { addCheckIn, getRoutine, loadCheckIns, updateRoutineDesc } from './db'
+import { RoutineDescription } from './routine-description'
 
 export function RoutineDetailPage() {
   const navigate = useNavigate()
@@ -87,6 +88,12 @@ export function RoutineDetailPage() {
     })
     setCheckIns(await loadCheckIns(routineId))
     setDialogOpen(false)
+  }
+
+  const handleSaveDesc = async (desc: string) => {
+    if (!routine) return
+    await updateRoutineDesc(routineId, desc)
+    setRoutine({ ...routine, desc })
   }
 
   if (!hydrated) {
@@ -204,6 +211,8 @@ export function RoutineDetailPage() {
           <Check className="size-4" />
           打卡
         </ColorButton>
+
+        <RoutineDescription desc={routine.desc} onSave={handleSaveDesc} />
 
         <div className="flex justify-center">
           <RoutineCalendar

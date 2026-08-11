@@ -7,6 +7,7 @@ declare global {
       endDate: string
       timesPerDay: number
       minIntervalSeconds: number
+      desc: string
     }
 
     type TableRoutine = {
@@ -16,6 +17,7 @@ declare global {
       endDate: string
       timesPerDay: number
       minIntervalSeconds: number
+      desc: string
     }
 
     type CheckInItem = {

@@ -150,8 +150,6 @@ export function FrequentTextPage() {
                     className="inline-flex size-8 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-zinc-200/70 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-600/60 dark:hover:text-zinc-300"
                   />
                   <ConfirmPopover
-                    side="left"
-                    align="center"
                     open={deleteConfirmId === item.id}
                     onOpenChange={open =>
                       setDeleteConfirmId(open ? item.id : null)

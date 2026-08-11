@@ -74,3 +74,5 @@ export async function updateNote(
 ): Promise<void> {
   await db.notes.update(id, { ...data, updateTime: Date.now() })
 }
+
+export { db }

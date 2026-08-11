@@ -1,6 +1,6 @@
 {
   "name": "simple-bench",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,6 +22,7 @@
     "@mdxeditor/editor": "^3.53.1",
     "@reactuses/core": "^6.3.1",
     "@rolldown/plugin-babel": "^0.2.2",
+    "@supabase/server": "^1.4.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-router": "^1.168.1",
     "@testing-library/react": "^16.3.2",
@@ -31,6 +32,8 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.4.0",
     "dexie": "^4.4.1",
+    "dexie-export-import": "^4.4.0",
+    "fflate": "^0.8.3",
     "jotai": "^2.19.0",
     "jotai-babel": "^0.1.0",
     "lucide-react": "^0.577.0",
@@ -60,6 +63,7 @@
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "fake-indexeddb": "^6.2.5",
     "globals": "^17.4.0",
     "jsdom": "^29.0.1",
     "typescript": "~5.9.3",

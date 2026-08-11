@@ -53,8 +53,8 @@ const server = createServer(async (req, res) => {
     if (!res.writableEnded) {
       res.end()
     }
-  } catch (error) {
-    console.error(error)
+  } catch (e) {
+    console.error('[local-api-server]', e)
 
     if (!res.writableEnded) {
       sendJson(res, 500, { error: 'Internal server error' })

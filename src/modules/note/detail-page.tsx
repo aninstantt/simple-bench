@@ -25,7 +25,7 @@ import {
   toolbarPlugin
 } from '@mdxeditor/editor'
 import { useDebounceFn } from '@reactuses/core'
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useLocation, useNavigate, useParams } from '@tanstack/react-router'
 import {
   CircleChevronLeft,
   FolderOpen,
@@ -132,6 +132,7 @@ function buildPlugins(withToolbar: boolean) {
 export function NoteDetailPage() {
   const { id } = useParams({ strict: false }) as { id: string }
   const navigate = useNavigate()
+  const location = useLocation()
   const noteId = Number(id)
 
   const isNew = noteId === 0
@@ -365,6 +366,21 @@ export function NoteDetailPage() {
       setHasUnsavedChanges(false)
       setIsAutoSaving(false)
       setHydrated(true)
+
+      const importedContent = (
+        location.state as { importedContent?: string } | undefined
+      )?.importedContent
+      if (importedContent) {
+        window.history.replaceState({}, '')
+        markdownRef.current = importedContent
+        setMarkdown(importedContent)
+        hasUnsavedChangesRef.current = true
+        setHasUnsavedChanges(true)
+        requestAnimationFrame(() => {
+          editorRef.current?.setMarkdown(importedContent)
+        })
+      }
+
       return
     }
 

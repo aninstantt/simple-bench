@@ -60,3 +60,5 @@ export async function addCheckIn(
 export async function deleteCheckIn(id: number): Promise<void> {
   await db.check_ins.delete(id)
 }
+
+export { db }

@@ -29,3 +29,5 @@ export async function saveTodoItems(items: Todo.TodoItem[]): Promise<void> {
 export async function autoSync(items: Todo.TodoItem[]) {
   await saveTodoItems(items)
 }
+
+export { db }

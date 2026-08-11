@@ -7,6 +7,7 @@ import {
   ArrowDown,
   ArrowUp,
   CircleOff,
+  ClipboardList,
   Contrast,
   FileText,
   Home,
@@ -72,7 +73,8 @@ const dockMenuItemLabels: Record<State.UserConfig.DockMenuKey, string> = {
   share: '互传',
   todo: '待办',
   note: '笔记',
-  routine: '日常'
+  routine: '日常',
+  'frequent-text': '文本片段'
 }
 
 export type PageHeaderProps = {
@@ -172,6 +174,14 @@ export function PageHeader({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-xs"
+                  disabled={location.pathname === '/frequent-text'}
+                  onSelect={() => navigate({ to: '/frequent-text' })}
+                >
+                  <ClipboardList className="size-3.5" />
+                  文本片段
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
                   disabled={location.pathname === '/aes'}
                   onSelect={() => navigate({ to: '/aes' })}
                 >
@@ -188,6 +198,7 @@ export function PageHeader({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <Button
               type="button"
               variant="outline"

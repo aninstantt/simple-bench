@@ -13,6 +13,7 @@ export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
   { key: 'home', visible: false },
   { key: 'todo', visible: true },
   { key: 'note', visible: true },
+  { key: 'frequent-text', visible: true },
   { key: 'routine', visible: true },
   { key: 'aes', visible: false },
   { key: 'share', visible: false }

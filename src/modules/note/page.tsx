@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router'
-import { BookText, FolderOpen, PlusIcon, Trash2 } from 'lucide-react'
+import { BookText, Copy, FolderOpen, PlusIcon, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
@@ -8,6 +8,15 @@ import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
 import { WithLoading } from '@/components/custom/with-loading'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 
 import { deleteNote, loadNoteList } from './db'
 
@@ -36,6 +45,8 @@ export function NotePage() {
   const [hydrated, setHydrated] = useState(false)
   const [notes, setNotes] = useState<Note.NoteListItem[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [importContent, setImportContent] = useState('')
 
   const reload = async () => {
     const items = await loadNoteList()
@@ -61,7 +72,7 @@ export function NotePage() {
       <section className="mx-auto max-w-lg space-y-4">
         <PageHeader icon={<BookText className="size-4" />} title="笔记" />
 
-        <div>
+        <div className="flex gap-2">
           <ColorButton
             type="yellow"
             className="h-9 w-auto px-4"
@@ -69,6 +80,17 @@ export function NotePage() {
             onClick={() => navigate({ to: '/note/$id', params: { id: '0' } })}
           >
             <PlusIcon className="size-4" />
+          </ColorButton>
+          <ColorButton
+            type="blue"
+            className="h-9 w-auto px-4"
+            aria-label="导入笔记"
+            onClick={() => {
+              setImportContent('')
+              setImportDialogOpen(true)
+            }}
+          >
+            <Copy className="size-4" />
           </ColorButton>
         </div>
 
@@ -131,6 +153,36 @@ export function NotePage() {
           </div>
         )}
       </section>
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>导入笔记</DialogTitle>
+            <DialogDescription>请输入 Markdown 格式的文本</DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={importContent}
+            onChange={e => setImportContent(e.target.value)}
+            placeholder="在此粘贴 Markdown 内容"
+            className="min-h-[200px]"
+          />
+          <DialogFooter>
+            <ColorButton
+              type="green"
+              onClick={() => {
+                void navigate({
+                  to: '/note/$id',
+                  params: { id: '0' },
+                  state: { importedContent: importContent } as never
+                })
+                setImportContent('')
+                setImportDialogOpen(false)
+              }}
+            >
+              确认
+            </ColorButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </WithLoading>
   )
 }

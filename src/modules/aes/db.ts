@@ -37,3 +37,5 @@ export async function retrieveMode(): Promise<string> {
   const row = await db.kv.get(MODE_ROW_ID)
   return row?.val || ''
 }
+
+export { db }

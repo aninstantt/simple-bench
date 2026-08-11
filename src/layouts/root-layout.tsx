@@ -8,6 +8,7 @@ import { Suspense, lazy } from 'react'
 
 import { LockIcon } from '@/components/animated-icons/aes'
 import { BookTextIcon } from '@/components/animated-icons/book-text'
+import { ClipboardListIcon } from '@/components/animated-icons/frequent-text'
 import { HomeIcon } from '@/components/animated-icons/home'
 import { RadioIcon } from '@/components/animated-icons/radio'
 import { CalendarDaysIcon } from '@/components/animated-icons/routine'
@@ -100,6 +101,17 @@ export function RootLayout() {
       onClick: () => navigate({ to: '/routine' }),
       icon: (
         <CalendarDaysIcon
+          className={dockAnimatedIconClass}
+          size={dockIconSize}
+        />
+      )
+    },
+    'frequent-text': {
+      key: 'frequent-text',
+      label: '文本片段',
+      onClick: () => navigate({ to: '/frequent-text' }),
+      icon: (
+        <ClipboardListIcon
           className={dockAnimatedIconClass}
           size={dockIconSize}
         />

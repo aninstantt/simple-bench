@@ -1,3 +1,4 @@
+import { readdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -21,13 +22,17 @@ const port = Number(
   apiProxyUrl.port || (apiProxyUrl.protocol === 'https:' ? 443 : 80)
 )
 const hostname = apiProxyUrl.hostname || 'localhost'
-const { default: pusherAuthHandler } = await import('../api/pusher-auth.js')
-const { default: pusherSendHandler } = await import('../api/pusher-send.js')
+const apiDir = path.resolve(rootDir, 'api')
+const entries = await readdir(apiDir, { withFileTypes: true })
+const routes = new Map()
 
-const routes = new Map([
-  ['/api/pusher-auth', pusherAuthHandler],
-  ['/api/pusher-send', pusherSendHandler]
-])
+for (const entry of entries) {
+  if (!entry.isFile() || !entry.name.endsWith('.js')) continue
+
+  const routePath = `/api/${entry.name.replace(/\.js$/, '')}`
+  const mod = await import(path.join(apiDir, entry.name))
+  routes.set(routePath, mod.default)
+}
 
 const server = createServer(async (req, res) => {
   try {

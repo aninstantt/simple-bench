@@ -8,9 +8,10 @@ import { Suspense, lazy } from 'react'
 
 import { LockIcon } from '@/components/animated-icons/aes'
 import { BookTextIcon } from '@/components/animated-icons/book-text'
-import { ClipboardListIcon } from '@/components/animated-icons/frequent-text'
 import { HomeIcon } from '@/components/animated-icons/home'
+import { LibraryIcon } from '@/components/animated-icons/library'
 import { RadioIcon } from '@/components/animated-icons/radio'
+import { ReceiptTextIcon } from '@/components/animated-icons/receipt-text'
 import { CalendarDaysIcon } from '@/components/animated-icons/routine'
 import { MessageCircleCheckIcon } from '@/components/animated-icons/todo'
 import { PwaUpdateHandler } from '@/components/custom/pwa-update-handler'
@@ -111,10 +112,18 @@ export function RootLayout() {
       label: '文本片段',
       onClick: () => navigate({ to: '/frequent-text' }),
       icon: (
-        <ClipboardListIcon
+        <ReceiptTextIcon
           className={dockAnimatedIconClass}
           size={dockIconSize}
         />
+      )
+    },
+    entry: {
+      key: 'entry',
+      label: '词条',
+      onClick: () => navigate({ to: '/entry' }),
+      icon: (
+        <LibraryIcon className={dockAnimatedIconClass} size={dockIconSize} />
       )
     }
   }

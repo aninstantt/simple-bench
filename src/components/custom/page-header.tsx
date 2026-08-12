@@ -12,6 +12,7 @@ import {
   FileText,
   Home,
   Layers,
+  Library,
   List,
   MessageCircleCheck,
   Lock,
@@ -74,7 +75,8 @@ const dockMenuItemLabels: Record<State.UserConfig.DockMenuKey, string> = {
   todo: '待办',
   note: '笔记',
   routine: '日常',
-  'frequent-text': '文本片段'
+  'frequent-text': '文本片段',
+  entry: '词条'
 }
 
 export type PageHeaderProps = {
@@ -179,6 +181,14 @@ export function PageHeader({
                 >
                   <ClipboardList className="size-3.5" />
                   文本片段
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={location.pathname === '/entry'}
+                  onSelect={() => navigate({ to: '/entry' })}
+                >
+                  <Library className="size-3.5" />
+                  词条
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-xs"

@@ -14,6 +14,7 @@ declare global {
         | 'note'
         | 'routine'
         | 'frequent-text'
+        | 'entry'
       type DockMenuItem = {
         key: DockMenuKey
         visible: boolean

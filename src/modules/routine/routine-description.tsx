@@ -8,15 +8,15 @@ type RoutineDescriptionProps = {
 }
 
 function renderLine(text: string) {
-  const parts = text.split(/(\[.+?\])/g)
+  const parts = text.split(/(\*\*.+?\*\*)/g)
   return parts.map((part, i) => {
-    if (part.startsWith('[') && part.endsWith(']')) {
+    if (part.startsWith('**') && part.endsWith('**')) {
       return (
         <strong
           key={i}
           className="font-semibold text-emerald-600 dark:text-emerald-400"
         >
-          {part.slice(1, -1)}
+          {part.slice(2, -2)}
         </strong>
       )
     }
@@ -47,7 +47,7 @@ export function RoutineDescription({ desc, onSave }: RoutineDescriptionProps) {
           <span className="text-xs text-zinc-400">
             用{' '}
             <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-600">
-              [文字]
+              **文字**
             </code>{' '}
             包裹要加重的文字
           </span>
@@ -72,7 +72,7 @@ export function RoutineDescription({ desc, onSave }: RoutineDescriptionProps) {
           value={draft}
           onChange={e => setDraft(e.target.value)}
           className="h-32 w-full resize-y rounded-lg border border-zinc-200 bg-white p-2 text-xs text-zinc-700 outline-none focus:border-zinc-400 dark:border-zinc-500 dark:bg-zinc-600 dark:text-zinc-200 dark:focus:border-zinc-300"
-          placeholder="K: [V]"
+          placeholder="K: **V**"
           autoFocus
         />
       </div>

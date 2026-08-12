@@ -1,6 +1,6 @@
 {
   "name": "simple-bench",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "@reactuses/core": "^6.3.1",
     "@rolldown/plugin-babel": "^0.2.2",
     "@supabase/server": "^1.4.1",
+    "@supabase/supabase-js": "^2.112.3",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-router": "^1.168.1",
     "@testing-library/react": "^16.3.2",

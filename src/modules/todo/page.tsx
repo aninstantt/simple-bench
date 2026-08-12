@@ -118,7 +118,7 @@ export function TodoPage() {
           title="待办"
         />
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <ColorButton
             type="blue"
             className="h-9 w-auto px-4"
@@ -157,6 +157,9 @@ export function TodoPage() {
               </ColorButton>
             }
           />
+          <span className="ml-auto self-end text-xs text-zinc-400 dark:text-zinc-500">
+            拖动以排序
+          </span>
         </div>
 
         {items.length === 0 ? (

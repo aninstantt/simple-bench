@@ -11,6 +11,7 @@ import { HomePage } from './modules/home/page'
 import { NotFoundPage } from './modules/not-found/page'
 import { registerAesRoutes } from './routes/aes'
 import { registerCatchAllRoute } from './routes/catch-all'
+import { registerEntryRoutes } from './routes/entry'
 import { registerFrequentTextRoutes } from './routes/frequent-text'
 import { registerNoteRoutes } from './routes/note'
 import { registerRoutineRoutes } from './routes/routine'
@@ -33,6 +34,8 @@ const [routineRoute, routineCreateRoute, routineDetailRoute] =
 const shareRoute = registerShareRoutes(rootRoute)
 const todoRoute = registerTodoRoutes(rootRoute)
 const [noteRoute, noteDetailRoute] = registerNoteRoutes(rootRoute)
+const [entryRoute, entrySpaceRoute, entryDetailRoute] =
+  registerEntryRoutes(rootRoute)
 const frequentTextRoute = registerFrequentTextRoutes(rootRoute)
 const catchAllRoute = registerCatchAllRoute(rootRoute)
 
@@ -46,6 +49,9 @@ export const routeTree = rootRoute.addChildren([
   todoRoute,
   noteRoute,
   noteDetailRoute,
+  entryRoute,
+  entrySpaceRoute,
+  entryDetailRoute,
   frequentTextRoute,
   catchAllRoute
 ])

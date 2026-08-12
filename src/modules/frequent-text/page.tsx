@@ -1,4 +1,4 @@
-import { ClipboardList, PlusIcon, Search, Trash2, X } from 'lucide-react'
+import { ReceiptText, PlusIcon, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
@@ -91,7 +91,7 @@ export function FrequentTextPage() {
     <WithLoading loading={!hydrated}>
       <section className="mx-auto max-w-lg space-y-4">
         <PageHeader
-          icon={<ClipboardList className="size-4" />}
+          icon={<ReceiptText className="size-4" />}
           title="文本片段"
         />
 

@@ -35,7 +35,14 @@ export function normalizeDockMenuItems(
     if (!item || typeof item !== 'object') continue
     if (!knownKeys.has(item.key)) continue
     if (seenKeys.has(item.key)) continue
-    nextItems.push({ key: item.key, visible: item.visible !== false })
+    nextItems.push({
+      key: item.key,
+      visible: item.visible !== false,
+      color:
+        typeof item.color === 'string' && item.color.length > 0
+          ? item.color
+          : undefined
+    })
     seenKeys.add(item.key)
   }
 

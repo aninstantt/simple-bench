@@ -27,7 +27,7 @@ import {
   Sun,
   Tag
 } from 'lucide-react'
-import { useLayoutEffect, useState, type ReactNode } from 'react'
+import { cloneElement, useLayoutEffect, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import {
@@ -77,6 +77,78 @@ const dockMenuItemLabels: Record<State.UserConfig.DockMenuKey, string> = {
   routine: '日常',
   'frequent-text': '文本片段',
   entry: '词条'
+}
+
+const navItemConfig: Record<
+  State.UserConfig.DockMenuKey,
+  { label: string; path: string; icon: ReactNode }
+> = {
+  home: { label: '主页', path: '/', icon: <Home className="size-3.5" /> },
+  todo: {
+    label: '待办',
+    path: '/todo',
+    icon: <MessageCircleCheck className="size-3.5" />
+  },
+  note: {
+    label: '笔记',
+    path: '/note',
+    icon: <BookText className="size-3.5" />
+  },
+  routine: {
+    label: '日常',
+    path: '/routine',
+    icon: <CalendarDays className="size-3.5" />
+  },
+  'frequent-text': {
+    label: '文本片段',
+    path: '/frequent-text',
+    icon: <ClipboardList className="size-3.5" />
+  },
+  entry: {
+    label: '词条',
+    path: '/entry',
+    icon: <Library className="size-3.5" />
+  },
+  aes: {
+    label: '加解密',
+    path: '/aes',
+    icon: <Lock className="size-3.5" />
+  },
+  share: {
+    label: '互传',
+    path: '/share',
+    icon: <Radio className="size-3.5" />
+  }
+}
+
+const NAV_COLORS = [
+  { label: '无', value: '' },
+  { label: '红', value: '#ef4444' },
+  { label: '橙', value: '#f97316' },
+  { label: '琥珀', value: '#f59e0b' },
+  { label: '黄', value: '#eab308' },
+  { label: '柠', value: '#84cc16' },
+  { label: '绿', value: '#22c55e' },
+  { label: '青', value: '#14b8a6' },
+  { label: '天', value: '#0ea5e9' },
+  { label: '蓝', value: '#3b82f6' },
+  { label: '靛', value: '#6366f1' },
+  { label: '紫', value: '#8b5cf6' },
+  { label: '粉', value: '#ec4899' },
+  { label: '玫', value: '#f43f5e' },
+  { label: '茶', value: '#d97706' },
+  { label: '墨', value: '#0f172a' }
+]
+
+function colorStyle(value: string): React.CSSProperties {
+  if (!value)
+    return { background: 'linear-gradient(135deg, #d4d4d8 50%, #a1a1aa 50%)' }
+  return { backgroundColor: value }
+}
+
+function resolveColor(color: string | undefined): string | undefined {
+  if (!color) return undefined
+  return color
 }
 
 export type PageHeaderProps = {
@@ -142,70 +214,42 @@ export function PageHeader({
               <DropdownMenuContent align="end" sideOffset={8}>
                 <DropdownMenuLabel className="text-xs">导航</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/'}
-                  onSelect={() => navigate({ to: '/' })}
-                >
-                  <Home className="size-3.5" />
-                  主页
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/todo'}
-                  onSelect={() => navigate({ to: '/todo' })}
-                >
-                  <MessageCircleCheck className="size-3.5" />
-                  待办
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/note'}
-                  onSelect={() => navigate({ to: '/note' })}
-                >
-                  <BookText className="size-3.5" />
-                  笔记
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/routine'}
-                  onSelect={() => navigate({ to: '/routine' })}
-                >
-                  <CalendarDays className="size-3.5" />
-                  日常
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/frequent-text'}
-                  onSelect={() => navigate({ to: '/frequent-text' })}
-                >
-                  <ClipboardList className="size-3.5" />
-                  文本片段
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/entry'}
-                  onSelect={() => navigate({ to: '/entry' })}
-                >
-                  <Library className="size-3.5" />
-                  词条
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/aes'}
-                  onSelect={() => navigate({ to: '/aes' })}
-                >
-                  <Lock className="size-3.5" />
-                  加解密
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={location.pathname === '/share'}
-                  onSelect={() => navigate({ to: '/share' })}
-                >
-                  <Radio className="size-3.5" />
-                  互传
-                </DropdownMenuItem>
+                {(() => {
+                  const ordered = normalizeDockMenuItems(dockMenuItems)
+                  return ordered.map(item => {
+                    const config = navItemConfig[item.key]
+                    if (!config) return null
+                    return (
+                      <DropdownMenuItem
+                        key={item.key}
+                        className="text-xs"
+                        disabled={location.pathname === config.path}
+                        onSelect={() => navigate({ to: config.path })}
+                      >
+                        <span className="-mt-px">
+                          {config.icon && item.color
+                            ? cloneElement(
+                                config.icon as React.ReactElement<{
+                                  className?: string
+                                  style?: React.CSSProperties
+                                }>,
+                                { style: { color: resolveColor(item.color) } }
+                              )
+                            : config.icon}
+                        </span>
+                        <span
+                          style={
+                            item.color
+                              ? { color: resolveColor(item.color) }
+                              : undefined
+                          }
+                        >
+                          {config.label}
+                        </span>
+                      </DropdownMenuItem>
+                    )
+                  })
+                })()}
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -527,7 +571,7 @@ export function PageHeader({
           <DialogHeader>
             <DialogTitle className="text-sm">导航栏设置</DialogTitle>
             <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
-              勾选控制显示，使用上下箭头调整顺序。
+              勾选控制菜单显示，使用上下箭头调整顺序。
             </DialogDescription>
           </DialogHeader>
 
@@ -560,49 +604,112 @@ export function PageHeader({
                         }}
                         className="size-4 rounded border-zinc-300 accent-zinc-900 dark:border-zinc-600 dark:accent-zinc-100"
                       />
-                      <span className="truncate">
+                      <span
+                        className="truncate"
+                        style={
+                          menuItem.color ? { color: menuItem.color } : undefined
+                        }
+                      >
                         {dockMenuItemLabels[menuItem.key]}
                       </span>
                     </label>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        aria-label="上移"
-                        disabled={index === 0}
-                        onClick={() => {
-                          setDockMenuDraft(prev => {
-                            if (index <= 0) return prev
-                            const next = [...prev]
-                            const [current] = next.splice(index, 1)
-                            next.splice(index - 1, 0, current)
-                            return next
-                          })
-                        }}
-                      >
-                        <ArrowUp className="size-3.5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        aria-label="下移"
-                        disabled={index === dockMenuDraft.length - 1}
-                        onClick={() => {
-                          setDockMenuDraft(prev => {
-                            if (index >= prev.length - 1) return prev
-                            const next = [...prev]
-                            const [current] = next.splice(index, 1)
-                            next.splice(index + 1, 0, current)
-                            return next
-                          })
-                        }}
-                      >
-                        <ArrowDown className="size-3.5" />
-                      </Button>
+                    <div className="flex items-center gap-1.5">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className={`rounded-full transition-all hover:ring-1 hover:ring-zinc-400 ${
+                              menuItem.color
+                                ? 'size-4'
+                                : 'size-4 border border-zinc-300 dark:border-zinc-600'
+                            }`}
+                            style={colorStyle(menuItem.color ?? '')}
+                            aria-label="选择颜色"
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent
+                          side="left"
+                          align="center"
+                          className="w-fit border-zinc-200 bg-white p-2 dark:border-zinc-600 dark:bg-zinc-950"
+                        >
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {NAV_COLORS.map(c => {
+                              const isActive = menuItem.color === c.value
+                              return (
+                                <button
+                                  key={c.value}
+                                  type="button"
+                                  aria-label={c.label}
+                                  className={`rounded-full transition-all ${
+                                    c.value
+                                      ? 'size-5'
+                                      : 'size-5 border border-zinc-300 dark:border-zinc-600'
+                                  } ${
+                                    isActive
+                                      ? 'ring-2 ring-zinc-900 ring-offset-1 dark:ring-zinc-100 dark:ring-offset-zinc-950'
+                                      : 'hover:ring-1 hover:ring-zinc-400'
+                                  }`}
+                                  style={colorStyle(c.value)}
+                                  onClick={() => {
+                                    setDockMenuDraft(prev =>
+                                      prev.map(item =>
+                                        item.key === menuItem.key
+                                          ? {
+                                              ...item,
+                                              color: isActive
+                                                ? undefined
+                                                : c.value || undefined
+                                            }
+                                          : item
+                                      )
+                                    )
+                                  }}
+                                />
+                              )
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          aria-label="上移"
+                          disabled={index === 0}
+                          onClick={() => {
+                            setDockMenuDraft(prev => {
+                              if (index <= 0) return prev
+                              const next = [...prev]
+                              const [current] = next.splice(index, 1)
+                              next.splice(index - 1, 0, current)
+                              return next
+                            })
+                          }}
+                        >
+                          <ArrowUp className="size-3.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          aria-label="下移"
+                          disabled={index === dockMenuDraft.length - 1}
+                          onClick={() => {
+                            setDockMenuDraft(prev => {
+                              if (index >= prev.length - 1) return prev
+                              const next = [...prev]
+                              const [current] = next.splice(index, 1)
+                              next.splice(index + 1, 0, current)
+                              return next
+                            })
+                          }}
+                        >
+                          <ArrowDown className="size-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )

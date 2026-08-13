@@ -1,7 +1,8 @@
+import { watch } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { loadEnv } from 'vite-plus'
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -78,6 +79,22 @@ server.on('error', error => {
 
 server.listen(port, hostname, () => {
   console.info(`Local API server listening on ${apiProxyTarget}`)
+})
+
+watch(apiDir, (event, filename) => {
+  if (!filename || !filename.endsWith('.js')) return
+
+  const routePath = `/api/${filename.replace(/\.js$/, '')}`
+  const url = pathToFileURL(path.join(apiDir, filename))
+  url.search = `update=${Date.now()}`
+  import(url.href)
+    .then(mod => {
+      routes.set(routePath, mod.default)
+      console.info(`[local-api-server] reloaded ${filename}`)
+    })
+    .catch(e =>
+      console.error(`[local-api-server] failed to reload ${filename}`, e)
+    )
 })
 
 function decorateResponse(res) {

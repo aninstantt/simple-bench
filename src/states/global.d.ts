@@ -18,6 +18,7 @@ declare global {
       type DockMenuItem = {
         key: DockMenuKey
         visible: boolean
+        color?: string
       }
     }
 

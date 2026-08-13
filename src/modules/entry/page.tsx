@@ -199,7 +199,7 @@ export function EntryPage() {
                 onChange={e =>
                   setForm(prev => ({ ...prev, description: e.target.value }))
                 }
-                placeholder="空间描述：支持 # 标题、## 子标题、@链接@、**粗体**、> 灰色小字"
+                placeholder="空间描述：支持 # 标题、## 子标题、[[链接]]、[文字](url) 外部链接、**粗体**、> 灰色小字"
                 className="min-h-20 text-sm"
               />
               <div className="flex justify-end">

@@ -47,6 +47,7 @@ type DockNavItem = {
   label: string
   onClick: () => void
   icon: ReactNode
+  color?: string
 }
 
 const itemClass =
@@ -57,6 +58,11 @@ export function RootLayout() {
   const [dockVisible, setDockVisible] = useAtom(dockVisibleAtom)
   const [backgroundMode] = useAtom(backgroundAtom)
   const [dockMenuItems] = useAtom(dockMenuItemsAtom)
+
+  const resolveColor = (color: string | undefined): string | undefined => {
+    if (!color) return undefined
+    return color
+  }
 
   const navItemsByKey: Record<State.UserConfig.DockMenuKey, DockNavItem> = {
     home: {
@@ -130,7 +136,7 @@ export function RootLayout() {
 
   const navItems = normalizeDockMenuItems(dockMenuItems)
     .filter(item => item.visible)
-    .map(item => navItemsByKey[item.key])
+    .map(item => ({ ...navItemsByKey[item.key], color: item.color }))
 
   const hasNavItems = navItems.length > 0
 
@@ -180,6 +186,11 @@ export function RootLayout() {
                       key={item.key}
                       onClick={item.onClick}
                       className={itemClass}
+                      style={
+                        item.color
+                          ? { color: resolveColor(item.color) }
+                          : undefined
+                      }
                     >
                       <DockIcon>{item.icon}</DockIcon>
                       <DockLabel>{item.label}</DockLabel>

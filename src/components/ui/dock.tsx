@@ -40,6 +40,7 @@ export type DockItemProps = {
   className?: string
   children: React.ReactNode
   onClick?: () => void
+  style?: React.CSSProperties
 }
 
 export type DockLabelProps = {
@@ -111,7 +112,7 @@ function Dock({
   )
 }
 
-function DockItem({ children, className, onClick }: DockItemProps) {
+function DockItem({ children, className, onClick, style }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { distance, magnification, mouseX, spring, isTouch } = useDock()
 
@@ -145,7 +146,7 @@ function DockItem({ children, className, onClick }: DockItemProps) {
   return (
     <motion.div
       ref={ref}
-      style={{ width, height: width }}
+      style={{ width, height: width, ...style }}
       onHoverStart={isTouch ? undefined : () => isHovered.set(1)}
       onHoverEnd={isTouch ? undefined : () => isHovered.set(0)}
       onFocus={isTouch ? undefined : () => isHovered.set(1)}

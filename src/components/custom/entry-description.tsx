@@ -19,7 +19,7 @@ function parseInline(
   let key = 0
 
   while (remaining.length > 0) {
-    const linkMatch = remaining.match(/^@([^@]+)@/)
+    const linkMatch = remaining.match(/^\[\[([^\]]+)\]\]/)
     if (linkMatch) {
       const name = linkMatch[1]
       parts.push(
@@ -38,6 +38,36 @@ function parseInline(
         </button>
       )
       remaining = remaining.slice(linkMatch[0].length)
+      continue
+    }
+
+    const extLinkMatch = remaining.match(/^\[([^\]]+)\]\(([^)]+)\)/)
+    if (extLinkMatch) {
+      parts.push(
+        <a
+          key={key++}
+          href={extLinkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-0.5 rounded-md bg-amber-50 px-1.5 py-0.5 text-amber-700 decoration-amber-300 underline-offset-2 transition-colors hover:bg-amber-100 hover:text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:decoration-amber-600 dark:hover:bg-amber-900/30 dark:hover:text-amber-200"
+        >
+          {extLinkMatch[1]}
+          <svg
+            className="size-3 shrink-0 opacity-70"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" x2="21" y1="14" y2="3" />
+          </svg>
+        </a>
+      )
+      remaining = remaining.slice(extLinkMatch[0].length)
       continue
     }
 

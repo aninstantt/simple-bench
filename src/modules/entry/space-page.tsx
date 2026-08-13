@@ -269,7 +269,7 @@ export function EntrySpacePage() {
                 onChange={e =>
                   setForm(prev => ({ ...prev, description: e.target.value }))
                 }
-                placeholder="词条内容，支持以下语法：# 标题、## 子标题、@链接@、**粗体**、> 灰色小字"
+                placeholder="词条内容，支持以下语法：# 标题、## 子标题、[[链接]]、[文字](url) 外部链接、**粗体**、> 灰色小字"
                 className="min-h-28 text-sm"
               />
               <div className="flex justify-end">

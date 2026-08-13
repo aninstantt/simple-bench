@@ -36,19 +36,19 @@ import {
 
 const SYNTAX_HELP: { label: string; example: string; desc: string }[] = [
   {
-    label: '一级标题',
-    example: '# 标题',
-    desc: '以 # 开头的行会显示为一级标题'
+    label: '标题',
+    example: '# 标题、## 子标题',
+    desc: '以 # 开头为一级标题，## 开头为二级标题'
   },
   {
-    label: '二级标题',
-    example: '## 标题',
-    desc: '以 ## 开头的行会显示为二级标题'
+    label: '内部链接',
+    example: '[[词条名]]',
+    desc: '[[...]] 包裹的词条名会变成内部链接，跳转到对应词条'
   },
   {
-    label: '链接',
-    example: '@词条名@',
-    desc: '@...@ 包裹的词条名会变成可点击的链接，跳转到对应词条'
+    label: '外部链接',
+    example: '[文字](https://...)',
+    desc: '外部链接，点击后在新窗口打开'
   },
   {
     label: '加粗',
@@ -292,7 +292,7 @@ export function EntryDetailPage() {
               <Textarea
                 value={editDescription}
                 onChange={e => setEditDescription(e.target.value)}
-                placeholder="词条内容，支持以下语法：# 标题、## 子标题、@链接@、**粗体**、> 灰色小字"
+                placeholder="词条内容，支持以下语法：# 标题、## 子标题、[[链接]]、[文字](url) 外部链接、**粗体**、> 灰色小字"
                 className="min-h-28 text-sm"
               />
               <div className="flex justify-end">

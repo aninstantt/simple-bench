@@ -72,7 +72,7 @@ const ReceiptTextIcon = forwardRef<ReceiptTextIconHandle, ReceiptTextIconProps>(
         if (isControlledRef.current) {
           onMouseLeave?.(e)
         } else {
-          controls.start('visible')
+          void controls.start('visible')
         }
       },
       [controls, onMouseLeave]

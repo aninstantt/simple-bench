@@ -72,6 +72,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const [inputValue, setInputValue] = useState('')
   const [mnemonicError, setMnemonicError] = useState('')
   const [confirmGenerateOpen, setConfirmGenerateOpen] = useState(false)
+  const [mnemonicConfirmOpen, setMnemonicConfirmOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const [accountState, setAccountState] = useAtom(syncConfigAtom)
@@ -233,6 +234,68 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
       setMnemonic('')
       setInputValue('')
       toast.success('备份账户已添加')
+    } catch {
+      toast.error('无法创建备份账户，请稍后再试。')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleConfirmMnemonicAndDownload = async () => {
+    setMnemonicConfirmOpen(false)
+    setLoading(true)
+
+    const seed = mnemonicToSeedSync(inputValue)
+    const keys = deriveAll(seed)
+
+    try {
+      const response = await fetch('/api/backup-new', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sync_id: keys.syncId,
+          public_key: keys.publicKey
+        })
+      })
+
+      if (!response.ok) {
+        toast.error('无法创建备份账户，请稍后再试。')
+        return
+      }
+
+      const config: SyncAccountConfig = {
+        syncId: keys.syncId,
+        dataKey: keys.dataKey,
+        privateKey: keys.privateKey,
+        publicKey: keys.publicKey
+      }
+
+      setAccountState({ status: 'ok', config })
+      setSyncAccountIssue('')
+      setMnemonic('')
+      setInputValue('')
+
+      try {
+        const serverVersion = await syncDown(
+          keys.syncId,
+          keys.privateKey,
+          keys.dataKey
+        )
+        setVersion(serverVersion)
+        setHasUnsyncedChanges(false)
+        toast.success('同步成功')
+        setTimeout(() => window.location.reload(), 1000)
+      } catch (e) {
+        if (
+          e instanceof BackupRequestError &&
+          e.status >= 400 &&
+          e.status < 500
+        ) {
+          setSyncAccountIssue(e.message)
+        } else {
+          toast.error(e instanceof Error ? e.message : '下载失败')
+        }
+      }
     } catch {
       toast.error('无法创建备份账户，请稍后再试。')
     } finally {
@@ -427,7 +490,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                           setMnemonicError('无效的助记词')
                           return
                         }
-                        void handleSaveMnemonic(inputValue)
+                        setMnemonicConfirmOpen(true)
                       }}
                     >
                       <Check className="size-3.5" />
@@ -472,6 +535,48 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
               }}
             >
               <Check className="size-3.5" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={mnemonicConfirmOpen} onOpenChange={setMnemonicConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-sm">
+              <span className="text-amber-500">⚠️</span>
+              使用已有助记词
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
+              使用已有的助记词将会直接下载云端存档，是否确认？
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              aria-label="取消"
+              disabled={loading}
+              onClick={() => setMnemonicConfirmOpen(false)}
+            >
+              <X className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              className="h-8 w-8 p-0"
+              aria-label="确认"
+              disabled={loading}
+              onClick={handleConfirmMnemonicAndDownload}
+            >
+              {loading ? (
+                <RefreshCw className="size-3.5 animate-spin" />
+              ) : (
+                <Check className="size-3.5" />
+              )}
             </Button>
           </div>
         </DialogContent>

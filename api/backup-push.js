@@ -1,4 +1,8 @@
+import * as ed from '@noble/ed25519'
+import { sha512 } from '@noble/hashes/sha2.js'
 import { createAdminClient } from '@supabase/server/core'
+
+ed.hashes.sha512 = sha512
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,21 +10,29 @@ export default async function handler(req, res) {
     return
   }
 
-  const { sync_id, salt, encrypted_payload, version } = req.body
+  const body = req.body
+  const sync_id = body.sync_id
+  const version = body.version
+  const signature = body.signature
+  const file = body.file
+  const force = body.force === 'true'
 
-  if (!sync_id || !salt || !encrypted_payload || version == null) {
+  if (!sync_id || version == null || !signature || !file) {
     res.status(400).json({
       code: -1,
-      message: 'Missing sync_id, salt, encrypted_payload, or version'
+      message: 'Missing sync_id, version, signature, or file'
     })
     return
   }
+
+  const clientVersion = Number(version)
+  const payloadBuffer = file.data
 
   const supabase = createAdminClient()
 
   const { data: existing } = await supabase
     .from('simple_bench_backups')
-    .select('version')
+    .select('version, public_key')
     .eq('sync_id', sync_id)
     .maybeSingle()
 
@@ -31,10 +43,20 @@ export default async function handler(req, res) {
     return
   }
 
-  const serverVersion = existing.version
-  const clientVersion = Number(version)
+  const { public_key, version: serverVersion } = existing
 
-  if (serverVersion > clientVersion) {
+  const ok = ed.verify(
+    Buffer.from(signature, 'hex'),
+    payloadBuffer,
+    Buffer.from(public_key + 1, 'hex')
+  )
+
+  if (!ok) {
+    res.status(401).json({ code: -1, message: 'Invalid signature' })
+    return
+  }
+
+  if (!force && serverVersion > clientVersion) {
     res.status(409).json({
       code: -1,
       message: 'Server version is newer',
@@ -46,20 +68,17 @@ export default async function handler(req, res) {
     return
   }
 
-  const hexPayload =
-    '\\x' + Buffer.from(encrypted_payload, 'base64').toString('hex')
+  const hexPayload = '\\x' + payloadBuffer.toString('hex')
 
-  const { data, error: upsertError } = await supabase
+  const { data, error: updateError } = await supabase
     .from('simple_bench_backups')
-    .upsert(
-      { sync_id, salt, encrypted_payload: hexPayload, version: clientVersion },
-      { onConflict: 'sync_id' }
-    )
+    .update({ payload: hexPayload, version: serverVersion + 1 })
+    .eq('sync_id', sync_id)
     .select()
     .single()
 
-  if (upsertError) {
-    res.status(500).json({ code: -1, message: upsertError.message })
+  if (updateError) {
+    res.status(500).json({ code: -1, message: updateError.message })
     return
   }
 

@@ -6,9 +6,9 @@ export default async function handler(req, res) {
     return
   }
 
-  const { sync_id, salt } = req.body
-  if (!sync_id || !salt) {
-    res.status(400).json({ code: -1, message: 'Missing sync_id or salt' })
+  const { sync_id, public_key } = req.body
+  if (!sync_id || !public_key) {
+    res.status(400).json({ code: -1, message: 'Missing sync_id or public_key' })
     return
   }
 
@@ -22,8 +22,8 @@ export default async function handler(req, res) {
 
   if (existing) {
     res
-      .status(409)
-      .json({ code: -1, message: 'Backup already exists for this sync_id' })
+      .status(200)
+      .json({ code: 0, message: 'Backup already exists for this sync_id' })
     return
   }
 
@@ -41,11 +41,7 @@ export default async function handler(req, res) {
     if (createdAt > oneHourAgo) {
       res.status(429).json({
         code: -1,
-        message:
-          'Please retry later: a backup was created less than 1 hour ago',
-        data: {
-          created_at: latest.created_at
-        }
+        message: 'Please retry later: a backup was created less than 1 hour ago'
       })
       return
     }
@@ -55,9 +51,9 @@ export default async function handler(req, res) {
     .from('simple_bench_backups')
     .insert({
       sync_id,
-      salt,
-      version: 1,
-      encrypted_payload: null
+      public_key,
+      version: 0,
+      payload: null
     })
     .select()
     .single()

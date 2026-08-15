@@ -3,7 +3,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import { unzipSync } from 'fflate'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { packDbsToZip, unpackZipToDbs } from '@/lib/sync'
+import { packDbsToZip, unpackZipToDbs } from '@/lib/backup'
 
 type TestItem = { id: number; name: string; value: string }
 

@@ -8,7 +8,7 @@ import {
   Captions,
   CaptionsOff
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PlayfulTodolist } from '@/components/animate-ui/components/community/playful-todolist'
 import { ColorButton } from '@/components/custom/color-button'
@@ -52,12 +52,18 @@ function normalizeTodoItems(items: Todo.TodoItem[]): TodoStateItem[] {
 
 export function TodoPage() {
   const [hydrated, setHydrated] = useState(false)
-  const [items, setItems] = useState<TodoStateItem[]>([])
+  const [items, _setItems] = useState<TodoStateItem[]>([])
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogLabel, setDialogLabel] = useState('')
   const [editId, setEditId] = useState<string | null>(null)
   const [showButtons, setShowButtons] = useAtom(showButtonsAtom)
+  const dirtyRef = useRef(false)
+
+  const setItems = useCallback((items: TodoStateItem[]) => {
+    dirtyRef.current = true
+    _setItems(items)
+  }, [])
 
   const hydratedRef = useRef(hydrated)
   hydratedRef.current = hydrated
@@ -101,13 +107,17 @@ export function TodoPage() {
   useEffect(() => {
     void (async () => {
       const initial = await loadTodoItems()
-      setItems(normalizeTodoItems(initial))
+      const normalized = normalizeTodoItems(initial)
+      _setItems(normalized)
       setHydrated(true)
     })()
   }, [])
 
   useEffect(() => {
-    if (hydratedRef.current) void autoSync(itemsRef.current)
+    if (dirtyRef.current && hydratedRef.current) {
+      dirtyRef.current = false
+      void autoSync(itemsRef.current)
+    }
   }, [items])
 
   return (

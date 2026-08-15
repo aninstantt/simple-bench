@@ -135,16 +135,22 @@ async function readBody(req) {
   const rawBody = await readRawBody(req)
   const contentType = req.headers['content-type'] || ''
 
-  if (!rawBody) {
+  if (!rawBody || rawBody.length === 0) {
     return {}
   }
 
   if (contentType.includes('application/json')) {
-    return JSON.parse(rawBody)
+    return JSON.parse(rawBody.toString('utf8'))
   }
 
   if (contentType.includes('application/x-www-form-urlencoded')) {
-    return Object.fromEntries(new URLSearchParams(rawBody))
+    return Object.fromEntries(new URLSearchParams(rawBody.toString('utf8')))
+  }
+
+  if (contentType.includes('multipart/form-data')) {
+    const boundary = contentType.match(/boundary=(.+)/)?.[1]
+    if (!boundary) return rawBody
+    return parseMultipart(rawBody, boundary)
   }
 
   return rawBody
@@ -157,5 +163,57 @@ async function readRawBody(req) {
     chunks.push(chunk)
   }
 
-  return Buffer.concat(chunks).toString('utf8')
+  return Buffer.concat(chunks)
+}
+
+function parseMultipart(body, boundary) {
+  const parts = {}
+  const delimiter = Buffer.from(`--${boundary}`)
+  const crlf = Buffer.from('\r\n')
+  let start = 0
+
+  while (start < body.length) {
+    const headerStart = body.indexOf(delimiter, start)
+    if (headerStart === -1) break
+
+    const partStart = headerStart + delimiter.length
+
+    if (body.subarray(partStart, partStart + 2).equals(Buffer.from('--'))) {
+      break
+    }
+
+    const afterDelim = body.indexOf(crlf, partStart)
+    if (afterDelim === -1) break
+
+    const headerEnd = body.indexOf(Buffer.from('\r\n\r\n'), afterDelim + 2)
+    if (headerEnd === -1) break
+
+    const headerBlock = body
+      .subarray(afterDelim + 2, headerEnd)
+      .toString('utf8')
+    const nameMatch = headerBlock.match(/name="([^"]+)"/)
+    const filenameMatch = headerBlock.match(/filename="([^"]+)"/)
+    const name = nameMatch?.[1]
+
+    if (!name) {
+      start = headerEnd + 4
+      continue
+    }
+
+    const dataStart = headerEnd + 4
+    const nextDelim = body.indexOf(delimiter, dataStart)
+    const dataEnd = nextDelim !== -1 ? nextDelim - 2 : body.length
+
+    const data = body.subarray(dataStart, dataEnd)
+
+    if (filenameMatch) {
+      parts[name] = { filename: filenameMatch[1], data }
+    } else {
+      parts[name] = data.toString('utf8')
+    }
+
+    start = dataStart
+  }
+
+  return parts
 }

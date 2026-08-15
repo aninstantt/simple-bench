@@ -227,8 +227,10 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
       }
 
       setAccountState({ status: 'ok', config })
+      setHasUnsyncedChanges(true)
       setSyncAccountIssue('')
-      setMnemonic(newMnemonic)
+      setMnemonic('')
+      setInputValue('')
       toast.success('备份账户已添加')
     } catch {
       toast.error('无法创建备份账户，请稍后再试。')
@@ -376,6 +378,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                       }
                       onConfirm={() => {
                         setAccountState({ status: 'unset', config: null })
+                        setHasUnsyncedChanges(false)
                         setSyncAccountIssue('')
                         setMnemonic('')
                       }}

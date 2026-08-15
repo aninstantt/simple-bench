@@ -113,6 +113,10 @@ export function SyncNotice() {
     return () => clearInterval(id)
   }, [accountState.status, setHasNewerVersion])
 
+  if (accountState.status === 'unset') {
+    return null
+  }
+
   const hasAccountIssue =
     accountState.status === 'corrupt' ||
     (accountState.status === 'ok' && accountIssue.length > 0)
@@ -155,7 +159,7 @@ export function SyncNotice() {
     )
   }
 
-  if (hasNewerVersion) {
+  if (hasNewerVersion && accountState.status === 'ok') {
     return (
       <>
         <button
@@ -229,7 +233,7 @@ export function SyncNotice() {
     )
   }
 
-  if (hasUnsyncedChanges) {
+  if (hasUnsyncedChanges && accountState.status === 'ok') {
     return (
       <>
         <button

@@ -138,8 +138,6 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   }
 
   const handleUpload = async (force = false) => {
-    setUploadConfirmOpen(false)
-    setForceOverwriteOpen(false)
     setUploading(true)
     try {
       const nextVersion = await syncUp(
@@ -149,12 +147,15 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
         dataKeyHex,
         force
       )
+      setUploadConfirmOpen(false)
+      setForceOverwriteOpen(false)
       setSyncAccountIssue('')
       setVersion(nextVersion)
       setHasUnsyncedChanges(false)
       toast.success('上传成功')
     } catch (e) {
       if (e instanceof BackupRequestError && e.status === 409) {
+        setUploadConfirmOpen(false)
         setForceOverwriteOpen(true)
         return
       }
@@ -590,6 +591,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
               size="sm"
               className="h-8 w-8 p-0"
               aria-label="取消"
+              disabled={uploading}
               onClick={() => setForceOverwriteOpen(false)}
             >
               <X className="size-3.5" />
@@ -600,9 +602,14 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
               size="sm"
               className="h-8 w-8 p-0"
               aria-label="确认强制覆盖"
+              disabled={uploading}
               onClick={() => handleUpload(true)}
             >
-              <Upload className="size-3.5" />
+              {uploading ? (
+                <RefreshCw className="size-3.5 animate-spin" />
+              ) : (
+                <Upload className="size-3.5" />
+              )}
             </Button>
           </div>
         </DialogContent>

@@ -172,7 +172,7 @@ export function SyncNotice() {
         <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="text-sm">服务器有更新版本</DialogTitle>
+              <DialogTitle className="text-sm">服务器有新版本</DialogTitle>
               <DialogDescription className="pt-2 text-xs text-zinc-500 dark:text-zinc-400">
                 请点击确认，下载最新版本。
               </DialogDescription>

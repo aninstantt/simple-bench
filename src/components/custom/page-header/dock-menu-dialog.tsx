@@ -1,8 +1,9 @@
 import { useAtom } from 'jotai/react'
-import { ArrowDown, ArrowUp, Check, RotateCcw } from 'lucide-react'
+import { Check, RotateCcw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
+import { DragHandle, SortableList } from '@/components/custom/drag-sort-list'
 import {
   Dialog,
   DialogContent,
@@ -44,148 +45,114 @@ export function DockMenuDialog({ open, onOpenChange }: DockMenuDialogProps) {
         <DialogHeader>
           <DialogTitle className="text-sm">导航栏设置</DialogTitle>
           <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
-            勾选控制菜单显示，使用上下箭头调整顺序。
+            勾选控制菜单显示，拖动以调整顺序。
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="space-y-2">
-            {draft.map((menuItem, index) => {
+          <SortableList
+            items={draft}
+            getKey={item => item.key}
+            group="dock-menu"
+            onReorder={setDraft}
+          >
+            {(menuItem, _index, dragHandle) => {
               const visibleCount = draft.filter(item => item.visible).length
               const disableCheck = !menuItem.visible && visibleCount >= 5
               return (
-                <div
-                  key={menuItem.key}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-950/20"
-                >
-                  <label className="flex min-w-0 items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                    <input
-                      type="checkbox"
-                      checked={menuItem.visible}
-                      disabled={disableCheck}
-                      onChange={e => {
-                        const checked = e.target.checked
-                        setDraft(prev =>
-                          prev.map(item =>
-                            item.key === menuItem.key
-                              ? { ...item, visible: checked }
-                              : item
-                          )
-                        )
-                      }}
-                      className="size-4 rounded border-zinc-300 accent-zinc-900 dark:border-zinc-600 dark:accent-zinc-100"
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-950/20">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <DragHandle
+                      dragHandleRef={dragHandle.dragHandleRef}
+                      className="shrink-0"
                     />
-                    <span
-                      className="truncate"
-                      style={
-                        menuItem.color ? { color: menuItem.color } : undefined
-                      }
-                    >
-                      {dockMenuItemLabels[menuItem.key]}
-                    </span>
-                  </label>
-                  <div className="flex items-center gap-1.5">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          className={`rounded-full transition-all hover:ring-1 hover:ring-zinc-400 ${
-                            menuItem.color
-                              ? 'size-4'
-                              : 'size-4 border border-zinc-300 dark:border-zinc-600'
-                          }`}
-                          style={colorStyle(menuItem.color ?? '')}
-                          aria-label="选择颜色"
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent
-                        side="left"
-                        align="center"
-                        className="w-fit border-zinc-200 bg-white p-2 dark:border-zinc-600 dark:bg-zinc-950"
-                      >
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {NAV_COLORS.map(c => {
-                            const isActive = menuItem.color === c.value
-                            return (
-                              <button
-                                key={c.value}
-                                type="button"
-                                aria-label={c.label}
-                                className={`rounded-full transition-all ${
-                                  c.value
-                                    ? 'size-5'
-                                    : 'size-5 border border-zinc-300 dark:border-zinc-600'
-                                } ${
-                                  isActive
-                                    ? 'ring-2 ring-zinc-900 ring-offset-1 dark:ring-zinc-100 dark:ring-offset-zinc-950'
-                                    : 'hover:ring-1 hover:ring-zinc-400'
-                                }`}
-                                style={colorStyle(c.value)}
-                                onClick={() => {
-                                  setDraft(prev =>
-                                    prev.map(item =>
-                                      item.key === menuItem.key
-                                        ? {
-                                            ...item,
-                                            color: isActive
-                                              ? undefined
-                                              : c.value || undefined
-                                          }
-                                        : item
-                                    )
-                                  )
-                                }}
-                              />
+                    <label className="flex min-w-0 items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+                      <input
+                        type="checkbox"
+                        checked={menuItem.visible}
+                        disabled={disableCheck}
+                        onChange={e => {
+                          const checked = e.target.checked
+                          setDraft(prev =>
+                            prev.map(item =>
+                              item.key === menuItem.key
+                                ? { ...item, visible: checked }
+                                : item
                             )
-                          })}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        aria-label="上移"
-                        disabled={index === 0}
-                        onClick={() => {
-                          setDraft(prev => {
-                            if (index <= 0) return prev
-                            const next = [...prev]
-                            const [current] = next.splice(index, 1)
-                            next.splice(index - 1, 0, current)
-                            return next
-                          })
+                          )
                         }}
+                        className="size-4 rounded border-zinc-300 accent-zinc-900 dark:border-zinc-600 dark:accent-zinc-100"
+                      />
+                      <span
+                        className="truncate"
+                        style={
+                          menuItem.color ? { color: menuItem.color } : undefined
+                        }
                       >
-                        <ArrowUp className="size-3.5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        aria-label="下移"
-                        disabled={index === draft.length - 1}
-                        onClick={() => {
-                          setDraft(prev => {
-                            if (index >= prev.length - 1) return prev
-                            const next = [...prev]
-                            const [current] = next.splice(index, 1)
-                            next.splice(index + 1, 0, current)
-                            return next
-                          })
-                        }}
-                      >
-                        <ArrowDown className="size-3.5" />
-                      </Button>
-                    </div>
+                        {dockMenuItemLabels[menuItem.key]}
+                      </span>
+                    </label>
                   </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className={`rounded-full transition-all hover:ring-1 hover:ring-zinc-400 ${
+                          menuItem.color
+                            ? 'size-4'
+                            : 'size-4 border border-zinc-300 dark:border-zinc-600'
+                        }`}
+                        style={colorStyle(menuItem.color ?? '')}
+                        aria-label="选择颜色"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="left"
+                      align="center"
+                      className="w-fit border-zinc-200 bg-white p-2 dark:border-zinc-600 dark:bg-zinc-950"
+                    >
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {NAV_COLORS.map(c => {
+                          const isActive = menuItem.color === c.value
+                          return (
+                            <button
+                              key={c.value}
+                              type="button"
+                              aria-label={c.label}
+                              className={`rounded-full transition-all ${
+                                c.value
+                                  ? 'size-5'
+                                  : 'size-5 border border-zinc-300 dark:border-zinc-600'
+                              } ${
+                                isActive
+                                  ? 'ring-2 ring-zinc-900 ring-offset-1 dark:ring-zinc-100 dark:ring-offset-zinc-950'
+                                  : 'hover:ring-1 hover:ring-zinc-400'
+                              }`}
+                              style={colorStyle(c.value)}
+                              onClick={() => {
+                                setDraft(prev =>
+                                  prev.map(item =>
+                                    item.key === menuItem.key
+                                      ? {
+                                          ...item,
+                                          color: isActive
+                                            ? undefined
+                                            : c.value || undefined
+                                        }
+                                      : item
+                                  )
+                                )
+                              }}
+                            />
+                          )
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               )
-            })}
-          </div>
+            }}
+          </SortableList>
 
           <div className="flex items-center justify-end gap-2">
             <Button

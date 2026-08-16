@@ -115,7 +115,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
         setSyncAccountIssue('')
         if (json.data?.has_newer) {
           setHasNewerVersion(true)
-          toast.info('服务器有更新的版本')
+          toast.info('服务器有新的版本')
         } else {
           setHasNewerVersion(false)
           toast.success('已是最新版本')
@@ -231,7 +231,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
       setAccountState({ status: 'ok', config })
       setHasUnsyncedChanges(true)
       setSyncAccountIssue('')
-      setMnemonic('')
+      setMnemonic(newMnemonic)
       setInputValue('')
       toast.success('备份账户已添加')
     } catch {
@@ -316,7 +316,14 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent
+          onPointerDownOutside={event => {
+            if (mnemonic) event.preventDefault()
+          }}
+          onEscapeKeyDown={event => {
+            if (mnemonic) event.preventDefault()
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-sm">
               <Cloud className="size-4" />
@@ -346,7 +353,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                       />
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-bold text-olive-900">
-                          请复制您的助记词，刷新页面后将永久丢失！
+                          请复制您的助记词，离开设置窗口后将永久丢失！
                         </p>
                         <CopyButton text={mnemonic} showText />
                       </div>

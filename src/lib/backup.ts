@@ -35,7 +35,8 @@ export async function syncUp(
   version: number,
   privateKeyHex: string,
   dataKeyHex: string,
-  force = false
+  force = false,
+  enabledModules?: string[]
 ): Promise<number> {
   const privateKey = hexToBytes(privateKeyHex)
   const dbModules = import.meta.glob('../modules/*/db.ts', {
@@ -46,7 +47,9 @@ export async function syncUp(
   const databases: Record<string, Dexie> = {}
   for (const [path, db] of Object.entries(dbModules)) {
     const name = path.match(/modules\/([^/]+)\/db\.ts$/)?.[1]
-    if (name) databases[name] = db
+    if (name && (!enabledModules || enabledModules.includes(name))) {
+      databases[name] = db
+    }
   }
 
   const zippedBytes = await packDbsToZip(databases)
@@ -82,7 +85,8 @@ export async function syncUp(
 export async function syncDown(
   syncId: string,
   privateKeyHex: string,
-  dataKeyHex: string
+  dataKeyHex: string,
+  enabledModules?: string[]
 ): Promise<number> {
   const privateKey = hexToBytes(privateKeyHex)
   const signature = bytesToHex(
@@ -105,7 +109,7 @@ export async function syncDown(
   const serverVersion = Number(res.headers.get('x-backup-version') || '0')
   const encryptedBytes = new Uint8Array(await res.arrayBuffer())
   const decryptedBytes = await decryptPackage(encryptedBytes, dataKeyHex)
-  const ok = await unpackZipToDbs(decryptedBytes)
+  const ok = await unpackZipToDbs(decryptedBytes, enabledModules)
   if (!ok) {
     throw new Error('解压恢复数据失败')
   }
@@ -128,12 +132,16 @@ export async function packDbsToZip(
 }
 
 export async function unpackZipToDbs(
-  zippedBytes: Uint8Array
+  zippedBytes: Uint8Array,
+  enabledModules?: string[]
 ): Promise<boolean> {
   try {
     const unzippedFiles = unzipSync(zippedBytes)
 
     for (const dbName of Object.keys(unzippedFiles)) {
+      if (enabledModules && !enabledModules.includes(dbName)) {
+        continue
+      }
       const rawFileBytes = unzippedFiles[dbName]
       const dbBlob = new Blob([rawFileBytes], { type: 'application/json' })
 

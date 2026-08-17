@@ -249,3 +249,17 @@ export const hasUnsyncedChangesAtom = atomWithStorage<boolean>(
   undefined,
   { getOnInit: true }
 )
+
+export type SyncModuleId =
+  | 'note'
+  | 'frequent-text'
+  | 'entry'
+  | 'todo'
+  | 'routine'
+
+export const syncModulesAtom = atomWithStorage<SyncModuleId[]>(
+  'simple-bench:sync-modules',
+  ['note', 'frequent-text', 'entry'],
+  undefined,
+  { getOnInit: true }
+)

@@ -17,6 +17,8 @@ import {
   Download,
   Key,
   RefreshCw,
+  RotateCcw,
+  Settings2,
   Trash2,
   Upload,
   X
@@ -34,6 +36,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { BackupRequestError, syncDown, syncUp } from '@/lib/backup'
 import {
@@ -41,7 +45,9 @@ import {
   syncAccountIssueAtom,
   syncConfigAtom,
   syncHasNewerVersionAtom,
+  syncModulesAtom,
   type SyncAccountConfig,
+  type SyncModuleId,
   versionAtom
 } from '@/states/simple-bench'
 
@@ -95,6 +101,10 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const [downloading, setDownloading] = useState(false)
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false)
   const [forceOverwriteOpen, setForceOverwriteOpen] = useState(false)
+  const [moduleSettingsOpen, setModuleSettingsOpen] = useState(false)
+  const [enabledModules, setEnabledModules] = useAtom(syncModulesAtom)
+  const [localEnabledModules, setLocalEnabledModules] =
+    useState<SyncModuleId[]>(enabledModules)
 
   const handleCheck = async () => {
     setChecking(true)
@@ -146,7 +156,8 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
         version,
         privateKeyHex,
         dataKeyHex,
-        force
+        force,
+        enabledModules
       )
       setUploadConfirmOpen(false)
       setForceOverwriteOpen(false)
@@ -177,7 +188,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const handleDownload = async () => {
     setDownloading(true)
     try {
-      const serverVersion = await syncDown(syncId, privateKeyHex, dataKeyHex)
+      const serverVersion = await syncDown(
+        syncId,
+        privateKeyHex,
+        dataKeyHex,
+        enabledModules
+      )
       setVersion(serverVersion)
       setHasUnsyncedChanges(false)
       setSyncAccountIssue('')
@@ -279,7 +295,8 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
         const serverVersion = await syncDown(
           keys.syncId,
           keys.privateKey,
-          keys.dataKey
+          keys.dataKey,
+          enabledModules
         )
         setVersion(serverVersion)
         setHasUnsyncedChanges(false)
@@ -433,27 +450,42 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                       同步功能已开启
                       <CheckCircle className="size-3.5" />
                     </p>
-                    <StrictConfirmPopover
-                      align="end"
-                      trigger={
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 p-0 text-xs font-normal text-gray-400"
-                          aria-label="移除同步"
-                        >
-                          移除同步
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      }
-                      onConfirm={() => {
-                        setAccountState({ status: 'unset', config: null })
-                        setHasUnsyncedChanges(false)
-                        setSyncAccountIssue('')
-                        setMnemonic('')
-                      }}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 p-0 text-xs font-normal text-gray-400"
+                        onClick={() => {
+                          setLocalEnabledModules(enabledModules)
+                          setModuleSettingsOpen(true)
+                        }}
+                      >
+                        同步模块
+                        <Settings2 className="size-3.5" />
+                      </Button>
+                      <StrictConfirmPopover
+                        align="end"
+                        trigger={
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 p-0 text-xs font-normal text-gray-400"
+                            aria-label="移除同步"
+                          >
+                            移除同步
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        }
+                        onConfirm={() => {
+                          setAccountState({ status: 'unset', config: null })
+                          setHasUnsyncedChanges(false)
+                          setSyncAccountIssue('')
+                          setMnemonic('')
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -723,6 +755,103 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                 <Upload className="size-3.5" />
               )}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={moduleSettingsOpen}
+        onOpenChange={open => {
+          if (!open) {
+            setLocalEnabledModules(enabledModules)
+          }
+          setModuleSettingsOpen(open)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-sm">
+              <Settings2 className="size-3.5" />
+              同步模块设置
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="mb-1 inline-block">
+                选择需要同步的模块，未勾选的模块将不会上传。
+              </span>
+              <br />
+              <span className="mb-1 inline-block">不建议修改此设置。</span>
+              <br />
+              <span className="mb-1 inline-block text-red-700">
+                如果修改了同步模块，须确保在所有设备上保持一致。
+              </span>
+              <br />
+              <span className="text-red-700">
+                否则会导致未同步模块的数据被覆盖。
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {[
+              { id: 'todo' as const, label: '待办' },
+              { id: 'entry' as const, label: '词条' },
+              { id: 'routine' as const, label: '日常' },
+              { id: 'frequent-text' as const, label: '文本片段' },
+              { id: 'note' as const, label: '笔记' }
+            ].map(({ id, label }) => (
+              <div
+                key={id}
+                className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 dark:border-zinc-600"
+              >
+                <Label
+                  htmlFor={`sync-module-${id}`}
+                  className="cursor-pointer text-xs font-normal text-zinc-700 dark:text-zinc-200"
+                >
+                  {label}
+                </Label>
+                <Switch
+                  id={`sync-module-${id}`}
+                  size="sm"
+                  checked={localEnabledModules.includes(id)}
+                  onCheckedChange={checked => {
+                    setLocalEnabledModules(prev =>
+                      checked ? [...prev, id] : prev.filter(m => m !== id)
+                    )
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 border-zinc-200 p-0 dark:border-zinc-600"
+              aria-label="重置同步模块"
+              onClick={() =>
+                setLocalEnabledModules(['note', 'frequent-text', 'entry'])
+              }
+            >
+              <RotateCcw className="size-3.5" />
+            </Button>
+            <StrictConfirmPopover
+              align="end"
+              title="请输入 confirm 以保存设置"
+              trigger={
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  aria-label="保存同步模块设置"
+                >
+                  <Check className="size-3.5" />
+                </Button>
+              }
+              onConfirm={() => {
+                setEnabledModules(localEnabledModules)
+                setModuleSettingsOpen(false)
+              }}
+            />
           </div>
         </DialogContent>
       </Dialog>

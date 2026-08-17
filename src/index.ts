@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { getDefaultStore } from 'jotai'
 
-import { hasUnsyncedChangesAtom } from './states/simple-bench'
+import { hasUnsyncedChangesAtom, syncModulesAtom } from './states/simple-bench'
 
 const store = getDefaultStore()
 
@@ -12,23 +12,21 @@ Dexie.prototype.open = function () {
 
   db.tables.forEach(table => {
     table.hook('creating', () => {
-      globalMarkAsDirty(db.name, table.name, 'creating')
+      globalMarkAsDirty(db.name)
     })
     table.hook('updating', () => {
-      globalMarkAsDirty(db.name, table.name, 'updating')
+      globalMarkAsDirty(db.name)
     })
     table.hook('deleting', () => {
-      globalMarkAsDirty(db.name, table.name, 'deleting')
+      globalMarkAsDirty(db.name)
     })
   })
 
   return originalOpen.apply(this)
 }
 
-function globalMarkAsDirty(
-  _dbName: string,
-  _tableName: string,
-  _action: string
-) {
+function globalMarkAsDirty(dbName: string) {
+  const enabledModules = store.get(syncModulesAtom) as string[]
+  if (!enabledModules.includes(dbName)) return
   store.set(hasUnsyncedChangesAtom, true)
 }

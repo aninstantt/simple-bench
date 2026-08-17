@@ -17,6 +17,7 @@ import {
   syncAccountIssueAtom,
   syncConfigAtom,
   syncHasNewerVersionAtom,
+  syncModulesAtom,
   versionAtom
 } from '@/states/simple-bench'
 
@@ -30,6 +31,7 @@ export function SyncNotice() {
     hasUnsyncedChangesAtom
   )
   const [hasNewerVersion, setHasNewerVersion] = useAtom(syncHasNewerVersionAtom)
+  const [enabledModules] = useAtom(syncModulesAtom)
   const [detailOpen, setDetailOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -52,7 +54,9 @@ export function SyncNotice() {
         syncId,
         version,
         privateKeyHex,
-        dataKeyHex
+        dataKeyHex,
+        false,
+        enabledModules
       )
       setVersion(nextVersion)
       setHasUnsyncedChanges(false)
@@ -205,7 +209,8 @@ export function SyncNotice() {
                     const serverVersion = await syncDown(
                       syncId,
                       privateKeyHex,
-                      dataKeyHex
+                      dataKeyHex,
+                      enabledModules
                     )
                     setVersion(serverVersion)
                     setHasUnsyncedChanges(false)

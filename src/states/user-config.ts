@@ -10,14 +10,14 @@ export const DEFAULT_HOME_COPY =
   '一个轻量的工具箱 🎐，适配移动端与电脑端 🍃，可以离线使用 ✨'
 
 export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
-  { key: 'home', visible: false },
+  { key: 'home', visible: true, color: '#3b82f6' },
   { key: 'todo', visible: true },
-  { key: 'note', visible: true },
-  { key: 'frequent-text', visible: false },
+  { key: 'entry', visible: true },
   { key: 'routine', visible: true },
-  { key: 'entry', visible: false },
+  { key: 'frequent-text', visible: false },
   { key: 'aes', visible: false },
-  { key: 'share', visible: false }
+  { key: 'share', visible: false },
+  { key: 'note', visible: false }
 ]
 
 export function normalizeDockMenuItems(

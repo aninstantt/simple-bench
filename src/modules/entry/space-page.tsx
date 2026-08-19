@@ -9,6 +9,7 @@ import {
   Undo2
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
@@ -25,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import { addEntry, getSpace, loadEntries } from './db'
+import { addEntry, entryNameExists, getSpace, loadEntries } from './db'
 
 type EntryFormState = {
   name: string
@@ -73,6 +74,10 @@ export function EntrySpacePage() {
   const handleConfirm = async () => {
     const name = form.name.trim()
     if (!name) return
+    if (await entryNameExists(id, name)) {
+      toast.error('词条名称已存在')
+      return
+    }
     await addEntry({
       spaceId: id,
       name,
@@ -236,7 +241,10 @@ export function EntrySpacePage() {
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent
+            onPointerDownOutside={e => e.preventDefault()}
+            onEscapeKeyDown={e => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="text-sm">新建词条</DialogTitle>
               <DialogDescription className="sr-only">

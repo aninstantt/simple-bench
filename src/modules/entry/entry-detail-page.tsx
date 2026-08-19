@@ -10,6 +10,7 @@ import {
   Undo2
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
@@ -29,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   addEntry,
   deleteEntry,
+  entryNameExists,
   getEntryBySpaceAndName,
   getSpace,
   updateEntry
@@ -99,6 +101,10 @@ export function EntryDetailPage() {
   const handleEditConfirm = async () => {
     const name = editName.trim()
     if (!name) return
+    if (await entryNameExists(spaceIdNum, name, entry?.id)) {
+      toast.error('词条名称已存在')
+      return
+    }
     if (!entry || !entry.id) {
       await addEntry({
         spaceId: spaceIdNum,
@@ -263,7 +269,10 @@ export function EntryDetailPage() {
         )}
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent
+            onPointerDownOutside={e => e.preventDefault()}
+            onEscapeKeyDown={e => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="text-sm">
                 {isEmpty ? '创建词条' : '编辑词条'}

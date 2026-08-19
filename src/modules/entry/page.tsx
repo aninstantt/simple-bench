@@ -172,7 +172,10 @@ export function EntryPage() {
         )}
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent
+            onPointerDownOutside={e => e.preventDefault()}
+            onEscapeKeyDown={e => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="text-sm">
                 {editId == null ? '新建空间' : '编辑空间'}

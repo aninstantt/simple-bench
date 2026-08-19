@@ -77,6 +77,21 @@ export async function reorderSpaces(orderedIds: number[]): Promise<void> {
   })
 }
 
+export async function entryNameExists(
+  spaceId: number,
+  name: string,
+  excludeId?: number
+): Promise<boolean> {
+  const entry = await db.entries
+    .where('spaceId')
+    .equals(spaceId)
+    .and(e => e.name === name)
+    .first()
+  if (!entry) return false
+  if (excludeId != null) return entry.id !== excludeId
+  return true
+}
+
 export async function loadEntries(spaceId: number): Promise<Entry.EntryItem[]> {
   return db.entries.where('spaceId').equals(spaceId).sortBy('name')
 }

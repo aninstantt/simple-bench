@@ -107,7 +107,7 @@ export function EntryDescription({ text, spaceId }: EntryDescriptionProps) {
       elements.push(
         <h2
           key={i}
-          className="text-base font-semibold text-zinc-700 dark:text-zinc-200"
+          className="my-1.5 text-base font-semibold text-zinc-700 dark:text-zinc-200"
         >
           {parseInline(line.slice(3), spaceId, navigate)}
         </h2>
@@ -116,7 +116,7 @@ export function EntryDescription({ text, spaceId }: EntryDescriptionProps) {
       elements.push(
         <h1
           key={i}
-          className="text-lg font-bold text-zinc-800 dark:text-zinc-100"
+          className="my-2 text-lg font-bold text-zinc-800 dark:text-zinc-100"
         >
           {parseInline(line.slice(2), spaceId, navigate)}
         </h1>

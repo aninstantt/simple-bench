@@ -21,6 +21,7 @@ import {
   versionAtom
 } from '@/states/simple-bench'
 
+const CHECK_RETRY_DELAY_MS = 2_000
 const CHECK_INTERVAL_MS = 30_000
 
 export function SyncNotice() {
@@ -79,10 +80,10 @@ export function SyncNotice() {
     }
   }
 
-  const doCheck = useRef(async () => {
+  const doCheck = useRef(async (reportOnFailure = true): Promise<boolean> => {
     const sid = syncIdRef.current
     const ver = versionRef.current
-    if (!sid) return
+    if (!sid) return true
     try {
       const res = await fetch('/api/backup-check', {
         method: 'POST',
@@ -91,10 +92,13 @@ export function SyncNotice() {
       })
       if (!res.ok) {
         if (res.status >= 400 && res.status < 500) {
-          const json = await res.json().catch(() => null)
-          setAccountIssue(json?.message || '同步账号异常')
+          if (reportOnFailure) {
+            const json = await res.json().catch(() => null)
+            setAccountIssue(json?.message || '同步账号异常')
+          }
+          return false
         }
-        return
+        return true
       }
       const json = await res.json()
       if (json.code === 0 && json.data?.has_newer) {
@@ -102,8 +106,10 @@ export function SyncNotice() {
       } else {
         setHasNewerVersion(false)
       }
+      setAccountIssue('')
+      return true
     } catch {
-      // silent
+      return true
     }
   }).current
 
@@ -112,8 +118,15 @@ export function SyncNotice() {
       setHasNewerVersion(false)
       return
     }
-    void doCheck()
-    const id = setInterval(doCheck, CHECK_INTERVAL_MS)
+    const runWithRetry = async () => {
+      const ok = await doCheck(false)
+      if (!ok) {
+        await new Promise(resolve => setTimeout(resolve, CHECK_RETRY_DELAY_MS))
+        await doCheck()
+      }
+    }
+    void runWithRetry()
+    const id = setInterval(() => void runWithRetry(), CHECK_INTERVAL_MS)
     return () => clearInterval(id)
   }, [accountState.status, setHasNewerVersion])
 

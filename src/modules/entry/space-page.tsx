@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import {
   CircleChevronLeft,
   Library,
@@ -40,15 +40,41 @@ export function EntrySpacePage() {
   const navigate = useNavigate()
   const { spaceId } = useParams({ strict: false }) as { spaceId: string }
   const id = Number(spaceId)
+  const { search: searchParam, category: categoryParam } = useSearch({
+    strict: false
+  })
+  const search = searchParam ?? ''
+  const activeCategory = categoryParam ?? null
 
   const [hydrated, setHydrated] = useState(false)
   const [space, setSpace] = useState<Entry.Space | undefined>()
   const [entries, setEntries] = useState<Entry.EntryItem[]>([])
-  const [search, setSearch] = useState('')
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
-
   const [dialogOpen, setDialogOpen] = useState(false)
   const [form, setForm] = useState<EntryFormState>(EMPTY_FORM)
+
+  const setSearch = (value: string) => {
+    void navigate({
+      to: '/entry/$spaceId',
+      params: { spaceId: String(id) },
+      replace: true,
+      search: {
+        search: value || undefined,
+        category: categoryParam
+      }
+    })
+  }
+
+  const setActiveCategory = (value: string | null) => {
+    void navigate({
+      to: '/entry/$spaceId',
+      params: { spaceId: String(id) },
+      replace: true,
+      search: {
+        search: searchParam,
+        category: value ?? undefined
+      }
+    })
+  }
 
   const categories = Array.from(
     new Set(entries.map(e => e.category).filter(Boolean))

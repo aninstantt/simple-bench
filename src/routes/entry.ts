@@ -25,6 +25,11 @@ function PendingRoute() {
   })
 }
 
+type SpaceSearchParams = {
+  search?: string
+  category?: string
+}
+
 export function registerEntryRoutes(rootRoute: AnyRoute) {
   const entryRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -36,7 +41,12 @@ export function registerEntryRoutes(rootRoute: AnyRoute) {
     getParentRoute: () => rootRoute,
     path: 'entry/$spaceId',
     component: EntrySpacePage,
-    pendingComponent: PendingRoute
+    pendingComponent: PendingRoute,
+    validateSearch: (search: Record<string, unknown>): SpaceSearchParams => ({
+      search: typeof search.search === 'string' ? search.search : undefined,
+      category:
+        typeof search.category === 'string' ? search.category : undefined
+    })
   })
 
   const entryDetailRoute = createRoute({

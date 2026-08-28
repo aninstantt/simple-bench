@@ -1,4 +1,9 @@
-import { useNavigate, useParams } from '@tanstack/react-router'
+import {
+  useCanGoBack,
+  useNavigate,
+  useParams,
+  useRouter
+} from '@tanstack/react-router'
 import {
   CircleChevronLeft,
   Library,
@@ -66,6 +71,8 @@ const SYNTAX_HELP: { label: string; example: string; desc: string }[] = [
 
 export function EntryDetailPage() {
   const navigate = useNavigate()
+  const router = useRouter()
+  const canGoBack = useCanGoBack()
   const { spaceId, entryName } = useParams({ strict: false }) as {
     spaceId: string
     entryName: string
@@ -186,12 +193,16 @@ export function EntryDetailPage() {
             variant="outline"
             className="size-9 shrink-0 rounded-full p-0"
             aria-label="返回"
-            onClick={() =>
-              void navigate({
-                to: '/entry/$spaceId',
-                params: { spaceId: String(spaceIdNum) }
-              })
-            }
+            onClick={() => {
+              if (canGoBack) {
+                router.history.back()
+              } else {
+                void navigate({
+                  to: '/entry/$spaceId',
+                  params: { spaceId: String(spaceIdNum) }
+                })
+              }
+            }}
           >
             <CircleChevronLeft className="size-4" />
           </Button>

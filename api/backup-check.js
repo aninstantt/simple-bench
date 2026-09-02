@@ -6,7 +6,8 @@ export default async function handler(req, res) {
     return
   }
 
-  const { sync_id, version } = req.body
+  const body = req.body || {}
+  const { sync_id, version } = body
   if (!sync_id || version == null) {
     res.status(400).json({ code: -1, message: 'Missing sync_id or version' })
     return
@@ -35,7 +36,8 @@ export default async function handler(req, res) {
     data: {
       has_newer: serverVersion > clientVersion,
       server_version: serverVersion,
-      client_version: clientVersion
+      client_version: clientVersion,
+      server_time: Date.now()
     }
   })
 }

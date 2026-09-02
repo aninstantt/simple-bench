@@ -6,7 +6,8 @@ export default async function handler(req, res) {
     return
   }
 
-  const { sync_id, public_key } = req.body
+  const body = req.body || {}
+  const { sync_id, public_key } = body
   if (!sync_id || !public_key) {
     res.status(400).json({ code: -1, message: 'Missing sync_id or public_key' })
     return

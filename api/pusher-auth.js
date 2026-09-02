@@ -14,7 +14,8 @@ export default async function handler(req, res) {
     return
   }
 
-  const { socket_id, channel_name, user_id, user_name, user_peer_id } = req.body
+  const body = req.body || {}
+  const { socket_id, channel_name, user_id, user_name, user_peer_id } = body
 
   if (!socket_id || !channel_name) {
     res.status(400).json({ error: 'Missing socket_id or channel_name' })

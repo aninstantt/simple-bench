@@ -11,7 +11,12 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { BackupRequestError, syncDown, syncUp } from '@/lib/backup'
+import {
+  BackupRequestError,
+  saveClockOffset,
+  syncDown,
+  syncUp
+} from '@/lib/backup'
 import {
   hasUnsyncedChangesAtom,
   syncAccountIssueAtom,
@@ -84,6 +89,7 @@ export function SyncNotice() {
     const sid = syncIdRef.current
     const ver = versionRef.current
     if (!sid) return true
+    const t1 = Date.now()
     try {
       const res = await fetch('/api/backup-check', {
         method: 'POST',
@@ -101,6 +107,9 @@ export function SyncNotice() {
         return true
       }
       const json = await res.json()
+      if (json.code === 0 && typeof json.data?.server_time === 'number') {
+        saveClockOffset(json.data.server_time, t1, Date.now())
+      }
       if (json.code === 0 && json.data?.has_newer) {
         setHasNewerVersion(true)
       } else {

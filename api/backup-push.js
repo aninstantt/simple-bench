@@ -49,11 +49,22 @@ export default async function handler(req, res) {
 
   const { public_key, version: serverVersion } = existing
 
-  const ok = ed.verify(
-    Buffer.from(signature, 'hex'),
-    payloadBuffer,
-    Buffer.from(public_key + 1, 'hex')
-  )
+  const signatureBuffer = Buffer.from(signature, 'hex')
+  if (signatureBuffer.length !== 64) {
+    res.status(401).json({ code: -1, message: 'Invalid signature' })
+    return
+  }
+
+  let ok = false
+  try {
+    ok = ed.verify(
+      signatureBuffer,
+      payloadBuffer,
+      Buffer.from(public_key, 'hex')
+    )
+  } catch {
+    ok = false
+  }
 
   if (!ok) {
     res.status(401).json({ code: -1, message: 'Invalid signature' })

@@ -14,7 +14,8 @@ export default async function handler(req, res) {
     return
   }
 
-  const { channelName, senderId, senderName, text } = req.body
+  const body = req.body || {}
+  const { channelName, senderId, senderName, text } = body
 
   if (!channelName || !senderId || !text) {
     res.status(400).json({
@@ -31,7 +32,12 @@ export default async function handler(req, res) {
     createdAt: new Date().toISOString()
   }
 
-  await pusher.trigger(channelName, 'share-message', message)
+  try {
+    await pusher.trigger(channelName, 'share-message', message)
+  } catch {
+    res.status(400).json({ error: 'Invalid channelName or failed to send' })
+    return
+  }
 
   res.json({ message })
 }

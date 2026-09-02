@@ -17,6 +17,26 @@ export class BackupRequestError extends Error {
   }
 }
 
+const CLOCK_OFFSET_STORAGE_KEY = 'simple-bench:clock-offset'
+
+export function saveClockOffset(serverTime: number, t1: number, t4: number) {
+  const offset = Math.round(serverTime - (t1 + t4) / 2)
+  try {
+    window.localStorage.setItem(CLOCK_OFFSET_STORAGE_KEY, String(offset))
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function getClockOffset(): number {
+  try {
+    const offset = Number(window.localStorage.getItem(CLOCK_OFFSET_STORAGE_KEY))
+    return Number.isFinite(offset) ? offset : 0
+  } catch {
+    return 0
+  }
+}
+
 async function parseApiError(res: Response): Promise<BackupRequestError> {
   let message = res.statusText || '请求失败'
   try {
@@ -86,11 +106,14 @@ export async function syncDown(
   syncId: string,
   privateKeyHex: string,
   dataKeyHex: string,
-  enabledModules?: string[]
+  enabledModules?: string[],
+  retried = false
 ): Promise<number> {
   const privateKey = hexToBytes(privateKeyHex)
+  const t1 = Date.now()
+  const timestamp = t1 + getClockOffset()
   const signature = bytesToHex(
-    ed.sign(new TextEncoder().encode(syncId), privateKey)
+    ed.sign(new TextEncoder().encode(`${syncId}:${timestamp}`), privateKey)
   )
 
   const res = await fetch('/api/backup-pull', {
@@ -98,9 +121,19 @@ export async function syncDown(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       sync_id: syncId,
+      timestamp,
       signature
     })
   })
+
+  if (res.status === 401 && res.headers.has('x-server-time') && !retried) {
+    const t4 = Date.now()
+    const serverTime = Number(res.headers.get('x-server-time'))
+    if (Number.isFinite(serverTime)) {
+      saveClockOffset(serverTime, t1, t4)
+      return syncDown(syncId, privateKeyHex, dataKeyHex, enabledModules, true)
+    }
+  }
 
   if (!res.ok) {
     throw await parseApiError(res)
@@ -172,7 +205,7 @@ export async function unpackZipToDbs(
 export async function encryptPackage(
   zippedBytes: Uint8Array,
   dataKeyHex: string
-): Promise<{ encryptedBytes: Uint8Array; hash: string }> {
+): Promise<{ encryptedBytes: Uint8Array }> {
   const keyHashBytes = hexToBytes(dataKeyHex)
 
   const aesKey = await crypto.subtle.importKey(
@@ -197,16 +230,7 @@ export async function encryptPackage(
   finalEncryptedFileBytes.set(iv, 0)
   finalEncryptedFileBytes.set(new Uint8Array(ciphertextBuffer), 12)
 
-  const fileHashBuffer = await crypto.subtle.digest(
-    'SHA-256',
-    finalEncryptedFileBytes
-  )
-  const fileHashHex = bytesToHex(new Uint8Array(fileHashBuffer))
-
-  return {
-    encryptedBytes: finalEncryptedFileBytes,
-    hash: fileHashHex
-  }
+  return { encryptedBytes: finalEncryptedFileBytes }
 }
 
 export async function decryptPackage(

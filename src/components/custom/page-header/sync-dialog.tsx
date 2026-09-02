@@ -39,7 +39,12 @@ import {
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { BackupRequestError, syncDown, syncUp } from '@/lib/backup'
+import {
+  BackupRequestError,
+  saveClockOffset,
+  syncDown,
+  syncUp
+} from '@/lib/backup'
 import {
   hasUnsyncedChangesAtom,
   syncAccountIssueAtom,
@@ -108,6 +113,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
 
   const handleCheck = async () => {
     setChecking(true)
+    const t1 = Date.now()
     try {
       const res = await fetch('/api/backup-check', {
         method: 'POST',
@@ -122,6 +128,9 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
       }
       const json = await res.json()
       if (json.code === 0) {
+        if (typeof json.data?.server_time === 'number') {
+          saveClockOffset(json.data.server_time, t1, Date.now())
+        }
         setSyncAccountIssue('')
         if (json.data?.has_newer) {
           setHasNewerVersion(true)

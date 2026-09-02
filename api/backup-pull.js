@@ -10,12 +10,21 @@ export default async function handler(req, res) {
     return
   }
 
-  const { sync_id, signature } = req.body
-  if (!sync_id || !signature) {
+  const body = req.body || {}
+  const { sync_id, timestamp, signature } = body
+  if (!sync_id || !timestamp || !signature) {
     res.status(400).json({
       code: -1,
-      message: 'Missing sync_id or signature'
+      message: 'Missing sync_id, timestamp, or signature'
     })
+    return
+  }
+
+  const now = Date.now()
+  const ts = Number(timestamp)
+  if (!Number.isFinite(ts) || Math.abs(now - ts) > 60_000) {
+    res.setHeader('x-server-time', String(now))
+    res.status(401).json({ code: -1, message: 'Stale or invalid timestamp' })
     return
   }
 
@@ -34,11 +43,22 @@ export default async function handler(req, res) {
     return
   }
 
-  const ok = ed.verify(
-    Buffer.from(signature, 'hex'),
-    Buffer.from(sync_id, 'utf-8'),
-    Buffer.from(existing.public_key, 'hex')
-  )
+  const signatureBuffer = Buffer.from(signature, 'hex')
+  if (signatureBuffer.length !== 64) {
+    res.status(401).json({ code: -1, message: 'Invalid signature' })
+    return
+  }
+
+  let ok = false
+  try {
+    ok = ed.verify(
+      signatureBuffer,
+      Buffer.from(`${sync_id}:${ts}`, 'utf-8'),
+      Buffer.from(existing.public_key, 'hex')
+    )
+  } catch {
+    ok = false
+  }
 
   if (!ok) {
     res.status(401).json({ code: -1, message: 'Invalid signature' })

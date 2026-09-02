@@ -24,11 +24,10 @@ describe('encryptPackage / decryptPackage', () => {
       new Uint8Array([255, 254, 253, 0, 42])
     ])
 
-    const { encryptedBytes, hash } = await encryptPackage(fakePayload, dataKey)
+    const { encryptedBytes } = await encryptPackage(fakePayload, dataKey)
 
     expect(encryptedBytes).toBeInstanceOf(Uint8Array)
     expect(encryptedBytes.length).toBeGreaterThan(fakePayload.length)
-    expect(hash).toMatch(/^[0-9a-f]{64}$/)
 
     const decrypted = await decryptPackage(encryptedBytes, dataKey)
 
@@ -45,18 +44,5 @@ describe('encryptPackage / decryptPackage', () => {
         'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       )
     ).rejects.toThrow()
-  })
-
-  it('produces a different hash when the payload changes', async () => {
-    const { hash: hashA } = await encryptPackage(
-      new TextEncoder().encode('first payload'),
-      dataKey
-    )
-    const { hash: hashB } = await encryptPackage(
-      new TextEncoder().encode('second payload'),
-      dataKey
-    )
-
-    expect(hashA).not.toBe(hashB)
   })
 })

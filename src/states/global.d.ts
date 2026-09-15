@@ -6,6 +6,7 @@ declare global {
       type Theme = 'dark' | 'light'
       type Language = 'chinese' | 'english'
       type BackgroundMode = 'gravity' | 'fireworks' | 'none'
+      type HomeView = 'home' | 'bookmark'
       type DockMenuKey =
         | 'home'
         | 'aes'

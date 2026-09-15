@@ -34,6 +34,7 @@ export type PageHeaderProps = {
   description?: string
   className?: string
   hideActions?: boolean
+  actions?: ReactNode
 }
 
 export function PageHeader({
@@ -41,7 +42,8 @@ export function PageHeader({
   title,
   description,
   className,
-  hideActions
+  hideActions,
+  actions
 }: PageHeaderProps) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -70,6 +72,7 @@ export function PageHeader({
         </div>
         {!hideActions && (
           <>
+            {actions}
             <SyncNotice />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

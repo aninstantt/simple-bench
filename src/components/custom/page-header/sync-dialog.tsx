@@ -805,7 +805,8 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
               { id: 'entry' as const, label: '词条' },
               { id: 'routine' as const, label: '日常' },
               { id: 'frequent-text' as const, label: '文本片段' },
-              { id: 'note' as const, label: '笔记' }
+              { id: 'note' as const, label: '笔记' },
+              { id: 'bookmark' as const, label: '书签' }
             ].map(({ id, label }) => (
               <div
                 key={id}
@@ -838,7 +839,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
               className="h-8 w-8 border-zinc-200 p-0 dark:border-zinc-600"
               aria-label="重置同步模块"
               onClick={() =>
-                setLocalEnabledModules(['note', 'frequent-text', 'entry'])
+                setLocalEnabledModules([
+                  'note',
+                  'frequent-text',
+                  'entry',
+                  'bookmark'
+                ])
               }
             >
               <RotateCcw className="size-3.5" />

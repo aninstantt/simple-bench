@@ -25,7 +25,13 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: HomePage
+  component: HomePage,
+  validateSearch: (search: Record<string, unknown>): { folder?: number } => {
+    const folder = Number(search.folder)
+    return {
+      folder: Number.isInteger(folder) && folder > 0 ? folder : undefined
+    }
+  }
 })
 
 const aesRoute = registerAesRoutes(rootRoute)

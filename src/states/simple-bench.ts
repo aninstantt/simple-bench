@@ -256,10 +256,11 @@ export type SyncModuleId =
   | 'entry'
   | 'todo'
   | 'routine'
+  | 'bookmark'
 
 export const syncModulesAtom = atomWithStorage<SyncModuleId[]>(
   'simple-bench:sync-modules',
-  ['note', 'frequent-text', 'entry'],
+  ['note', 'frequent-text', 'entry', 'bookmark'],
   undefined,
   { getOnInit: true }
 )

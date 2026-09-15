@@ -5,6 +5,7 @@ const STORAGE_KEY_BACKGROUND = 'user-config:background'
 const STORAGE_KEY_DOCK_VISIBLE = 'user-config:dock-visible'
 const STORAGE_KEY_DOCK_MENU_ITEMS = 'user-config:dock-menu-items'
 const STORAGE_KEY_HOME_COPY = 'user-config:home-copy'
+const STORAGE_KEY_HOME_VIEW = 'user-config:home-view'
 
 export const DEFAULT_HOME_COPY =
   '一个轻量的工具箱 🎐，适配移动端与电脑端 🍃，可以离线使用 ✨'
@@ -78,4 +79,11 @@ export const dockMenuItemsAtom = atomWithStorage<
 export const homeCopyAtom = atomWithStorage<string>(
   STORAGE_KEY_HOME_COPY,
   DEFAULT_HOME_COPY
+)
+
+export const homeViewAtom = atomWithStorage<State.UserConfig.HomeView>(
+  STORAGE_KEY_HOME_VIEW,
+  'bookmark',
+  undefined,
+  { getOnInit: true }
 )

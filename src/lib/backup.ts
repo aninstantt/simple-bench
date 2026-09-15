@@ -2,7 +2,7 @@ import * as ed from '@noble/ed25519'
 import { sha512 } from '@noble/hashes/sha2.js'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js'
 import Dexie from 'dexie'
-import { exportDB, importDB } from 'dexie-export-import'
+import { exportDB, importDB, type ImportOptions } from 'dexie-export-import'
 import { unzipSync, zipSync, type Zippable } from 'fflate'
 
 ed.hashes.sha512 = sha512
@@ -180,12 +180,14 @@ export async function unpackZipToDbs(
 
       const shadowDbName = `${dbName}_shadow_temp`
 
-      // A shadow database left behind by a previously interrupted import would
-      // otherwise make the validation import fail with a duplicate-key error on
-      // every subsequent sync. Always start from a clean shadow.
-      await Dexie.delete(shadowDbName)
-
-      const shadowDb = await importDB(dbBlob, { name: shadowDbName })
+      // Validate into a shadow database first. overwriteValues makes this
+      // resilient to a shadow left behind by a previously interrupted import
+      // (duplicate keys are overwritten instead of throwing) without deleting
+      // it up front: a delete can block forever on an open connection.
+      const shadowDb = await importDB(dbBlob, {
+        name: shadowDbName,
+        overwriteValues: true
+      } as ImportOptions)
 
       const tableCount = shadowDb.tables.length
       shadowDb.close()

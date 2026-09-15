@@ -180,20 +180,29 @@ export async function unpackZipToDbs(
 
       const shadowDbName = `${dbName}_shadow_temp`
 
+      // A shadow database left behind by a previously interrupted import would
+      // otherwise make the validation import fail with a duplicate-key error on
+      // every subsequent sync. Always start from a clean shadow.
+      await Dexie.delete(shadowDbName)
+
       const shadowDb = await importDB(dbBlob, { name: shadowDbName })
 
-      if (shadowDb.tables.length === 0) {
+      const tableCount = shadowDb.tables.length
+      shadowDb.close()
+
+      if (tableCount === 0) {
         await Dexie.delete(shadowDbName)
         return false
       }
-      shadowDb.close()
+
+      // Validation passed. Drop the shadow before touching the real database so
+      // an interrupted import can never leave it behind.
+      await Dexie.delete(shadowDbName)
 
       await Dexie.delete(dbName)
 
       const restoredDb = await importDB(dbBlob, { name: dbName })
       restoredDb.close()
-
-      await Dexie.delete(shadowDbName)
     }
   } catch (e) {
     console.error('[unpackZipToDbs]', e)

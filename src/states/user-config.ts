@@ -11,12 +11,12 @@ export const DEFAULT_HOME_COPY =
 
 export const DEFAULT_DOCK_MENU_ITEMS: State.UserConfig.DockMenuItem[] = [
   { key: 'home', visible: true, color: '#3b82f6' },
-  { key: 'todo', visible: true },
-  { key: 'entry', visible: true },
-  { key: 'routine', visible: true },
-  { key: 'frequent-text', visible: false },
-  { key: 'aes', visible: false },
-  { key: 'share', visible: false },
+  { key: 'todo', visible: true, color: '#ef4444' },
+  { key: 'entry', visible: true, color: '#84cc16' },
+  { key: 'routine', visible: true, color: '#14b8a6' },
+  { key: 'frequent-text', visible: false, color: '#d97706' },
+  { key: 'aes', visible: false, color: '#8b5cf6' },
+  { key: 'share', visible: false, color: '#ec4899' },
   { key: 'note', visible: false }
 ]
 

@@ -138,6 +138,28 @@ describe('packageDbsToZip / unpackZipToDbs', () => {
     expect(names).toContain(TEST_DB_PREFIX)
   })
 
+  it('recovers from a leftover shadow temp database', async () => {
+    const source = createTestDb(TEST_DB_PREFIX)
+    await source.items.add({ id: 1, name: 'alpha', value: 'A' })
+    const zipped = await packDbsToZip({ [TEST_DB_PREFIX]: source })
+
+    // Simulate a shadow database left behind by an interrupted import.
+    const leftover = createTestDb(`${TEST_DB_PREFIX}_shadow_temp`)
+    await leftover.items.add({ id: 1, name: 'leftover', value: 'X' })
+    leftover.close()
+
+    const ok = await unpackZipToDbs(zipped)
+    expect(ok).toBe(true)
+
+    const names = await Dexie.getDatabaseNames()
+    expect(names).not.toContain(`${TEST_DB_PREFIX}_shadow_temp`)
+
+    const verify = createTestDb(TEST_DB_PREFIX)
+    expect(await readAll(verify)).toEqual([
+      { id: 1, name: 'alpha', value: 'A' }
+    ])
+  })
+
   it('returns false for invalid zip data', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     try {

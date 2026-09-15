@@ -7,6 +7,7 @@ import { ConfirmPopover } from '@/components/custom/confirm-popover'
 import { CopyButton } from '@/components/custom/copy'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
+import { RevealHint } from '@/components/custom/reveal-hint'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
   Dialog,
@@ -122,6 +123,7 @@ export function FrequentTextPage() {
           >
             <PlusIcon className="size-4" />
           </ColorButton>
+          <RevealHint />
         </div>
 
         {items.length === 0 ? (

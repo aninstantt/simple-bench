@@ -8,6 +8,7 @@ import { ColorButton } from '@/components/custom/color-button'
 import { DragHandle, SortableList } from '@/components/custom/drag-sort-list'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
+import { RevealHint } from '@/components/custom/reveal-hint'
 import { StrictConfirmPopover } from '@/components/custom/strict-confirm-popover'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
@@ -105,9 +106,7 @@ export function EntryPage() {
           >
             <PlusIcon className="size-4" />
           </ColorButton>
-          <span className="ml-auto self-end text-xs text-zinc-400 dark:text-zinc-500">
-            拖动以排序
-          </span>
+          <RevealHint desktop="拖动以排序" />
         </div>
 
         {spaces.length === 0 ? (

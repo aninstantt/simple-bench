@@ -17,6 +17,7 @@ import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
 import { DragHandle, SortableList } from '@/components/custom/drag-sort-list'
 import { EmptyState } from '@/components/custom/empty-state'
+import { RevealHint } from '@/components/custom/reveal-hint'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
   Dialog,
@@ -73,7 +74,7 @@ const ICON_BOX_CLASS =
   'flex size-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06)] dark:bg-zinc-700/50 dark:shadow-none'
 
 const TILE_ACTION_CLASS =
-  'flex size-5 items-center justify-center text-zinc-300 transition-colors hover:text-zinc-500 max-sm:size-6 max-sm:text-zinc-400 dark:text-zinc-600 dark:hover:text-zinc-400 dark:max-sm:text-zinc-500'
+  'flex size-5 items-center justify-center text-zinc-300 transition-colors hover:text-zinc-500 max-sm:size-6 dark:text-zinc-600 dark:hover:text-zinc-400 dark:max-sm:text-zinc-500'
 
 function Favicon({
   url,
@@ -119,7 +120,7 @@ function TileShell({
   return (
     <div className="group relative h-full">
       {children}
-      <div className="pointer-events-none absolute top-1 left-1 z-10 flex flex-col items-center gap-0.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 max-sm:pointer-events-auto max-sm:opacity-100">
+      <div className="pointer-events-none absolute top-1 left-1 z-10 flex flex-col items-center gap-0.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
         <span className="flex size-5 items-center justify-center max-sm:size-6">
           <DragHandle dragHandleRef={dragHandleRef} />
         </span>
@@ -581,9 +582,7 @@ export function BookmarkSection({
             >
               <PlusIcon className="size-4" />
             </ColorButton>
-            <span className="ml-auto self-end text-xs text-zinc-400 dark:text-zinc-500">
-              拖动以排序
-            </span>
+            <RevealHint desktop="拖动以排序" />
           </div>
 
           {renderBookmarkGrid()}
@@ -613,9 +612,7 @@ export function BookmarkSection({
           >
             <PlusIcon className="size-4" />
           </ColorButton>
-          <span className="ml-auto self-end text-xs text-zinc-400 dark:text-zinc-500">
-            拖动以排序
-          </span>
+          <RevealHint desktop="拖动以排序" />
         </div>
 
         {folders.length > 0 ? (
@@ -641,13 +638,9 @@ export function BookmarkSection({
           </SortableList>
         ) : null}
 
-        {folders.length > 0 ? (
-          <p className="pt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            未分类
-          </p>
-        ) : null}
-
-        {renderBookmarkGrid()}
+        <div className={folders.length > 0 ? 'pt-2' : undefined}>
+          {renderBookmarkGrid()}
+        </div>
       </div>
       {dialogs}
     </WithLoading>

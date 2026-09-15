@@ -6,6 +6,7 @@ import { Button } from '@/components/animate-ui/components/buttons/button'
 import { ColorButton } from '@/components/custom/color-button'
 import { EmptyState } from '@/components/custom/empty-state'
 import { PageHeader } from '@/components/custom/page-header'
+import { RevealHint } from '@/components/custom/reveal-hint'
 import { StrictConfirmPopover } from '@/components/custom/strict-confirm-popover'
 import { WithLoading } from '@/components/custom/with-loading'
 import {
@@ -92,6 +93,7 @@ export function NotePage() {
           >
             <Copy className="size-4" />
           </ColorButton>
+          <RevealHint />
         </div>
 
         {notes.length === 0 ? (

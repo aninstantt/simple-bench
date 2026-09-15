@@ -5,6 +5,8 @@ import Dexie from 'dexie'
 import { exportDB, importDB, type ImportOptions } from 'dexie-export-import'
 import { unzipSync, zipSync, type Zippable } from 'fflate'
 
+import { closeDexieByName } from './db-registry'
+
 ed.hashes.sha512 = sha512
 
 export class BackupRequestError extends Error {
@@ -50,6 +52,22 @@ async function parseApiError(res: Response): Promise<BackupRequestError> {
   return new BackupRequestError(res.status, message)
 }
 
+function collectModuleDbs(): Record<string, Dexie> {
+  const dbModules = import.meta.glob('../modules/*/db.ts', {
+    eager: true,
+    import: 'db'
+  }) as Record<string, Dexie>
+
+  const databases: Record<string, Dexie> = {}
+  for (const [path, db] of Object.entries(dbModules)) {
+    const name = path.match(/modules\/([^/]+)\/db\.ts$/)?.[1]
+    if (name) {
+      databases[name] = db
+    }
+  }
+  return databases
+}
+
 export async function syncUp(
   syncId: string,
   version: number,
@@ -59,15 +77,11 @@ export async function syncUp(
   enabledModules?: string[]
 ): Promise<number> {
   const privateKey = hexToBytes(privateKeyHex)
-  const dbModules = import.meta.glob('../modules/*/db.ts', {
-    eager: true,
-    import: 'db'
-  }) as Record<string, Dexie>
+  const allDatabases = collectModuleDbs()
 
   const databases: Record<string, Dexie> = {}
-  for (const [path, db] of Object.entries(dbModules)) {
-    const name = path.match(/modules\/([^/]+)\/db\.ts$/)?.[1]
-    if (name && (!enabledModules || enabledModules.includes(name))) {
+  for (const [name, db] of Object.entries(allDatabases)) {
+    if (!enabledModules || enabledModules.includes(name)) {
       databases[name] = db
     }
   }
@@ -182,8 +196,7 @@ export async function unpackZipToDbs(
 
       // Validate into a shadow database first. overwriteValues makes this
       // resilient to a shadow left behind by a previously interrupted import
-      // (duplicate keys are overwritten instead of throwing) without deleting
-      // it up front: a delete can block forever on an open connection.
+      // (duplicate keys are overwritten instead of throwing).
       const shadowDb = await importDB(dbBlob, {
         name: shadowDbName,
         overwriteValues: true
@@ -197,14 +210,16 @@ export async function unpackZipToDbs(
         return false
       }
 
-      // Validation passed. Drop the shadow before touching the real database so
-      // an interrupted import can never leave it behind.
-      await Dexie.delete(shadowDbName)
-
+      // Recreate the database: close every open Dexie instance for this name,
+      // delete the old database, then import the backup so it comes up with the
+      // backup's schema and version (upgrades run when the app opens it again).
+      closeDexieByName(dbName)
       await Dexie.delete(dbName)
 
       const restoredDb = await importDB(dbBlob, { name: dbName })
       restoredDb.close()
+
+      await Dexie.delete(shadowDbName)
     }
   } catch (e) {
     console.error('[unpackZipToDbs]', e)

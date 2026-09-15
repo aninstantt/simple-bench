@@ -1,6 +1,7 @@
 import Dexie from 'dexie'
 import { getDefaultStore } from 'jotai'
 
+import { registerDexie } from './lib/db-registry'
 import { hasUnsyncedChangesAtom, syncModulesAtom } from './states/simple-bench'
 
 const store = getDefaultStore()
@@ -9,6 +10,7 @@ const originalOpen = Dexie.prototype.open
 
 Dexie.prototype.open = function () {
   const db = this as Dexie
+  registerDexie(db)
 
   db.tables.forEach(table => {
     table.hook('creating', () => {
